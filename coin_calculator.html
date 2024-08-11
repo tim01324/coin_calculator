@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coin Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    p {
+      margin: 10px 0;
+    }
+    input[type="text"] {
+      width: 20px;
+      padding: 1px;
+      /* margin-right: px; */
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    span {
+      font-weight: bold;
+    }
+    #grand_total {
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <p>Toonie Rolls <input type="text" name="toonie_roll" id="toonie_roll"> = <span id="total_toonie"></span></p>
+    <p>Loonie Rolls <input type="text" name="loonie_roll" id="loonie_roll"> = <span id="total_loonie"></span></p>
+    <p>Quarter Rolls <input type="text" name="quarter_roll" id="quarter_roll"> = <span id="total_quarter"></span></p>
+    <p>Dime Rolls <input type="text" name="dime_roll" id="dime_roll"> = <span id="total_dime"></span></p>
+    <p>Nickel Rolls <input type="text" name="nickel_roll" id="nickel_roll"> = <span id="total_nickel"></span></p>
+    <p>$20 Bills <input type="text" name="twenty_dollar_bill_count" id="twenty_dollar_bill_count"> = <span id="total_twenty_dollar_bill"></span></p>
+    <p>$10 Bills <input type="text" name="ten_dollar_bill_count" id="ten_dollar_bill_count"> = <span id="total_ten_dollar_bill"></span></p>
+    <p>$5 Bills <input type="text" name="five_dollar_bill_count" id="five_dollar_bill_count"> = <span id="total_five_dollar_bill"></span></p>
+    <p>$2 Bills <input type="text" name="two_dollar_bill_count" id="two_dollar_bill_count"> = <span id="total_two_dollar_bill"></span></p>
+    <p>$0.25 Coins <input type="text" name="quarter_count" id="quarter_count"> = <span id="total_quarter_cent"></span></p>
+    <p>$0.10 Coins <input type="text" name="ten_cent_count" id="ten_cent_count"> = <span id="total_ten_cent"></span></p>
+    <p>$0.05 Coins <input type="text" name="five_cent_count" id="five_cent_count"> = <span id="total_five_cent"></span></p>
+    <p><strong>Total: $<span id="grand_total">0.00</span></strong></p>
+  </div>
+
+  <script>
+    function calculateTotal(defaultValue, countId, resultId) {
+      const count = parseFloat(document.getElementById(countId).value) || 0;
+      const total = defaultValue * count;
+      document.getElementById(resultId).textContent = total.toFixed(2);
+      calculateGrandTotal();
+    }
+
+    function calculateGrandTotal() {
+      const totals = [
+        parseFloat(document.getElementById('total_toonie').textContent) || 0,
+        parseFloat(document.getElementById('total_loonie').textContent) || 0,
+        parseFloat(document.getElementById('total_quarter').textContent) || 0,
+        parseFloat(document.getElementById('total_dime').textContent) || 0,
+        parseFloat(document.getElementById('total_nickel').textContent) || 0,
+        parseFloat(document.getElementById('total_twenty_dollar_bill').textContent) || 0,
+        parseFloat(document.getElementById('total_ten_dollar_bill').textContent) || 0,
+        parseFloat(document.getElementById('total_five_dollar_bill').textContent) || 0,
+        parseFloat(document.getElementById('total_two_dollar_bill').textContent) || 0,
+        parseFloat(document.getElementById('total_quarter').textContent) || 0,
+        parseFloat(document.getElementById('total_ten_cent').textContent) || 0,
+        parseFloat(document.getElementById('total_five_cent').textContent) || 0
+      ];
+      const grandTotal = totals.reduce((acc, curr) => acc + curr, 0);
+      document.getElementById('grand_total').textContent = grandTotal.toFixed(2);
+    }
+
+    document.getElementById('toonie_roll').addEventListener('input', () => calculateTotal(50, 'toonie_roll', 'total_toonie'));
+    document.getElementById('loonie_roll').addEventListener('input', () => calculateTotal(25, 'loonie_roll', 'total_loonie'));
+    document.getElementById('quarter_roll').addEventListener('input', () => calculateTotal(10, 'quarter_roll', 'total_quarter'));
+    document.getElementById('dime_roll').addEventListener('input', () => calculateTotal(5, 'dime_roll', 'total_dime'));
+    document.getElementById('nickel_roll').addEventListener('input', () => calculateTotal(2, 'nickel_roll', 'total_nickel'));
+    document.getElementById('twenty_dollar_bill_count').addEventListener('input', () => calculateTotal(20, 'twenty_dollar_bill_count', 'total_twenty_dollar_bill'));
+    document.getElementById('ten_dollar_bill_count').addEventListener('input', () => calculateTotal(10, 'ten_dollar_bill_count', 'total_ten_dollar_bill'));
+    document.getElementById('five_dollar_bill_count').addEventListener('input', () => calculateTotal(5, 'five_dollar_bill_count', 'total_five_dollar_bill'));
+    document.getElementById('two_dollar_bill_count').addEventListener('input', () => calculateTotal(2, 'two_dollar_bill_count', 'total_two_dollar_bill'));
+    document.getElementById('quarter_count').addEventListener('input', () => calculateTotal(0.25, 'quarter_count', 'total_quarter_cent'));
+    document.getElementById('ten_cent_count').addEventListener('input', () => calculateTotal(0.10, 'ten_cent_count', 'total_ten_cent'));
+    document.getElementById('five_cent_count').addEventListener('input', () => calculateTotal(0.05, 'five_cent_count', 'total_five_cent'));
+  </script>
+</body>
+</html>
