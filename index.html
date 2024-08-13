@@ -29,6 +29,7 @@
       /* margin-right: px; */
       border: 1px solid #ccc;
       border-radius: 4px;
+      text-align: center;
     }
     span {
       font-weight: bold;
@@ -40,18 +41,20 @@
 </head>
 <body>
   <div class="container">
-    <p>Toonie Rolls <input type="text" name="toonie_roll" id="toonie_roll"> = <span id="total_toonie"></span></p>
-    <p>Loonie Rolls <input type="text" name="loonie_roll" id="loonie_roll"> = <span id="total_loonie"></span></p>
-    <p>Quarter Rolls <input type="text" name="quarter_roll" id="quarter_roll"> = <span id="total_quarter"></span></p>
-    <p>Dime Rolls <input type="text" name="dime_roll" id="dime_roll"> = <span id="total_dime"></span></p>
-    <p>Nickel Rolls <input type="text" name="nickel_roll" id="nickel_roll"> = <span id="total_nickel"></span></p>
-    <p>$20 Bills <input type="text" name="twenty_dollar_bill_count" id="twenty_dollar_bill_count"> = <span id="total_twenty_dollar_bill"></span></p>
-    <p>$10 Bills <input type="text" name="ten_dollar_bill_count" id="ten_dollar_bill_count"> = <span id="total_ten_dollar_bill"></span></p>
-    <p>$5 Bills <input type="text" name="five_dollar_bill_count" id="five_dollar_bill_count"> = <span id="total_five_dollar_bill"></span></p>
-    <p>$2 Bills <input type="text" name="two_dollar_bill_count" id="two_dollar_bill_count"> = <span id="total_two_dollar_bill"></span></p>
-    <p>$0.25 Coins <input type="text" name="quarter_count" id="quarter_count"> = <span id="total_quarter_cent"></span></p>
-    <p>$0.10 Coins <input type="text" name="ten_cent_count" id="ten_cent_count"> = <span id="total_ten_cent"></span></p>
-    <p>$0.05 Coins <input type="text" name="five_cent_count" id="five_cent_count"> = <span id="total_five_cent"></span></p>
+    <p>Toonie Rolls x <input type="text" name="toonie_roll" id="toonie_roll"> = <span id="total_toonie"></span></p>
+    <p>Loonie Rolls x <input type="text" name="loonie_roll" id="loonie_roll"> = <span id="total_loonie"></span></p>
+    <p>Quarter Rolls x <input type="text" name="quarter_roll" id="quarter_roll"> = <span id="total_quarter"></span></p>
+    <p>Dime Rolls x <input type="text" name="dime_roll" id="dime_roll"> = <span id="total_dime"></span></p>
+    <p>Nickel Rolls x <input type="text" name="nickel_roll" id="nickel_roll"> = <span id="total_nickel"></span></p>
+    <p>$50 Bills x <input type="text" name="fifty_dollar_bill_count" id="fifty_dollar_bill_count"> = <span id="total_fifty_dollar_bill"></span></p>
+    <p>$20 Bills x <input type="text" name="twenty_dollar_bill_count" id="twenty_dollar_bill_count"> = <span id="total_twenty_dollar_bill"></span></p>
+    <p>$10 Bills x <input type="text" name="ten_dollar_bill_count" id="ten_dollar_bill_count"> = <span id="total_ten_dollar_bill"></span></p>
+    <p>$5 Bills x <input type="text" name="five_dollar_bill_count" id="five_dollar_bill_count"> = <span id="total_five_dollar_bill"></span></p>
+    <p>$2 Coins x <input type="text" name="two_dollar_coins_count" id="two_dollar_coins_count"> = <span id="total_two_dollar_coins"></span></p>
+    <p>$1 Coins x <input type="text" name="one_dollar_coins_count" id="one_dollar_coins_count"> = <span id="total_one_dollar_coins"></span></p>
+    <p>$0.25 Coins x <input type="text" name="quarter_count" id="quarter_count"> = <span id="total_quarter_cent"></span></p>
+    <p>$0.10 Coins x <input type="text" name="ten_cent_count" id="ten_cent_count"> = <span id="total_ten_cent"></span></p>
+    <p>$0.05 Coins x <input type="text" name="five_cent_count" id="five_cent_count"> = <span id="total_five_cent"></span></p>
     <p><strong>Total: $<span id="grand_total">0.00</span></strong></p>
   </div>
 
@@ -70,11 +73,13 @@
         parseFloat(document.getElementById('total_quarter').textContent) || 0,
         parseFloat(document.getElementById('total_dime').textContent) || 0,
         parseFloat(document.getElementById('total_nickel').textContent) || 0,
+        parseFloat(document.getElementById('total_fifty_dollar_bill').textContent) || 0,
         parseFloat(document.getElementById('total_twenty_dollar_bill').textContent) || 0,
         parseFloat(document.getElementById('total_ten_dollar_bill').textContent) || 0,
         parseFloat(document.getElementById('total_five_dollar_bill').textContent) || 0,
-        parseFloat(document.getElementById('total_two_dollar_bill').textContent) || 0,
-        parseFloat(document.getElementById('total_quarter').textContent) || 0,
+        parseFloat(document.getElementById('total_one_dollar_coins').textContent) || 0,
+        parseFloat(document.getElementById('total_two_dollar_coins').textContent) || 0,
+        parseFloat(document.getElementById('total_quarter_cent').textContent) || 0,
         parseFloat(document.getElementById('total_ten_cent').textContent) || 0,
         parseFloat(document.getElementById('total_five_cent').textContent) || 0
       ];
@@ -87,10 +92,12 @@
     document.getElementById('quarter_roll').addEventListener('input', () => calculateTotal(10, 'quarter_roll', 'total_quarter'));
     document.getElementById('dime_roll').addEventListener('input', () => calculateTotal(5, 'dime_roll', 'total_dime'));
     document.getElementById('nickel_roll').addEventListener('input', () => calculateTotal(2, 'nickel_roll', 'total_nickel'));
+    document.getElementById('fifty_dollar_bill_count').addEventListener('input', () => calculateTotal(50, 'fifty_dollar_bill_count', 'total_fifty_dollar_bill'));
     document.getElementById('twenty_dollar_bill_count').addEventListener('input', () => calculateTotal(20, 'twenty_dollar_bill_count', 'total_twenty_dollar_bill'));
     document.getElementById('ten_dollar_bill_count').addEventListener('input', () => calculateTotal(10, 'ten_dollar_bill_count', 'total_ten_dollar_bill'));
     document.getElementById('five_dollar_bill_count').addEventListener('input', () => calculateTotal(5, 'five_dollar_bill_count', 'total_five_dollar_bill'));
-    document.getElementById('two_dollar_bill_count').addEventListener('input', () => calculateTotal(2, 'two_dollar_bill_count', 'total_two_dollar_bill'));
+    document.getElementById('one_dollar_coins_count').addEventListener('input', () => calculateTotal(1, 'one_dollar_coins_count', 'total_one_dollar_coins'));
+    document.getElementById('two_dollar_coins_count').addEventListener('input', () => calculateTotal(2, 'two_dollar_coins_count', 'total_two_dollar_coins'));
     document.getElementById('quarter_count').addEventListener('input', () => calculateTotal(0.25, 'quarter_count', 'total_quarter_cent'));
     document.getElementById('ten_cent_count').addEventListener('input', () => calculateTotal(0.10, 'ten_cent_count', 'total_ten_cent'));
     document.getElementById('five_cent_count').addEventListener('input', () => calculateTotal(0.05, 'five_cent_count', 'total_five_cent'));
