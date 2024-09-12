@@ -46,6 +46,7 @@
     <p>Quarter Rolls x <input type="text" name="quarter_roll" id="quarter_roll"> = <span id="total_quarter"></span></p>
     <p>Dime Rolls x <input type="text" name="dime_roll" id="dime_roll"> = <span id="total_dime"></span></p>
     <p>Nickel Rolls x <input type="text" name="nickel_roll" id="nickel_roll"> = <span id="total_nickel"></span></p>
+    <p>$100 Bills x <input type="text" name="hundre_dollar_bill_count" id="hundre_dollar_bill_count"> = <span id="total_hundre_dollar_bill"></span></p>
     <p>$50 Bills x <input type="text" name="fifty_dollar_bill_count" id="fifty_dollar_bill_count"> = <span id="total_fifty_dollar_bill"></span></p>
     <p>$20 Bills x <input type="text" name="twenty_dollar_bill_count" id="twenty_dollar_bill_count"> = <span id="total_twenty_dollar_bill"></span></p>
     <p>$10 Bills x <input type="text" name="ten_dollar_bill_count" id="ten_dollar_bill_count"> = <span id="total_ten_dollar_bill"></span></p>
@@ -73,6 +74,7 @@
         parseFloat(document.getElementById('total_quarter').textContent) || 0,
         parseFloat(document.getElementById('total_dime').textContent) || 0,
         parseFloat(document.getElementById('total_nickel').textContent) || 0,
+        parseFloat(document.getElementById('total_hundre_dollar_bill').textContent) || 0,
         parseFloat(document.getElementById('total_fifty_dollar_bill').textContent) || 0,
         parseFloat(document.getElementById('total_twenty_dollar_bill').textContent) || 0,
         parseFloat(document.getElementById('total_ten_dollar_bill').textContent) || 0,
@@ -87,6 +89,7 @@
       document.getElementById('grand_total').textContent = grandTotal.toFixed(2);
     }
 
+    document.getElementById('hundre_dollar_bill_count').addEventListener('input', () => calculateTotal(100, 'hundre_dollar_bill_count', 'total_hundre_dollar_bill'));
     document.getElementById('toonie_roll').addEventListener('input', () => calculateTotal(50, 'toonie_roll', 'total_toonie'));
     document.getElementById('loonie_roll').addEventListener('input', () => calculateTotal(25, 'loonie_roll', 'total_loonie'));
     document.getElementById('quarter_roll').addEventListener('input', () => calculateTotal(10, 'quarter_roll', 'total_quarter'));
