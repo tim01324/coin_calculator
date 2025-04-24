@@ -212,9 +212,17 @@
     function calculateItemTotal(inputId) {
       const inputElement = document.getElementById(inputId);
       // Derive result ID more robustly
-      let resultId = 'total_' + inputId.replace(/_count$|_roll$/, '');
-      if (inputId.endsWith('_cent')) {
-        resultId = 'total_' + inputId.replace('_count', '_cent');
+      let resultId;
+      // Handle specific cent counts first
+      if (inputId === 'quarter_count') {
+        resultId = 'total_quarter_cent';
+      } else if (inputId === 'ten_cent_count') {
+        resultId = 'total_ten_cent';
+      } else if (inputId === 'five_cent_count') {
+        resultId = 'total_five_cent';
+      } else {
+        // Original logic for rolls and bills
+        resultId = 'total_' + inputId.replace(/_count$|_roll$/, '');
       }
 
       let countValue = inputElement.value;
