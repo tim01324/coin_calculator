@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Coin Calculator</title>
   <style>
     body {
@@ -51,19 +51,22 @@
     }
 
     input[type="number"] {
-      width: 60px;
-      /* Increased width */
-      padding: 5px;
-      /* Added padding */
+      width: 70px;
+      /* Increased width for better mobile interaction */
+      padding: 12px 8px;
+      /* Increased padding for better touch targets */
       border: 1px solid #555;
       /* Darker border */
-      border-radius: 4px;
+      border-radius: 6px;
+      /* Slightly larger border radius */
       text-align: right;
       /* Align text to the right */
       background-color: #333;
       /* Dark input background */
       color: #ffffff;
       /* Light input text */
+      font-size: 16px;
+      /* Minimum 16px to prevent zoom on iPhone */
       margin-left: 10px;
       /* Add space between label and input */
       margin-right: 5px;
@@ -72,6 +75,9 @@
       /* Firefox */
       appearance: textfield;
       /* Standard property */
+      min-height: 44px;
+      /* Apple's recommended minimum touch target size */
+      box-sizing: border-box;
     }
 
     input[type=number]::-webkit-outer-spin-button,
@@ -117,12 +123,14 @@
 
     /* Style for the Open Cash input specifically */
     #open_cash {
-      width: 80px;
-      /* Wider input for open cash */
+      width: 100px;
+      /* Wider input for open cash - increased for mobile */
       margin-left: auto;
       /* Push input to the right */
       margin-right: 0;
       /* Remove right margin if added globally */
+      font-size: 16px;
+      /* Ensure 16px font size for this input too */
     }
 
     /* Adjust Total and Difference rows */
@@ -157,9 +165,157 @@
       background-color: #45a049;
     }
 
+    .reset-button:active {
+      background-color: #3d8b40;
+      transform: scale(0.98);
+    }
+
+    .reset-button {
+      /* Remove tap highlight for iOS */
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Sync button styles */
+    .sync-button {
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s;
+      -webkit-tap-highlight-color: transparent;
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .sync-button:hover {
+      background-color: #1976D2;
+    }
+
+    .sync-button:active {
+      background-color: #0D47A1;
+      transform: scale(0.98);
+    }
+
+    /* Tab Styles */
+    .tab-container {
+      margin-bottom: 20px;
+    }
+
+    .tab-buttons {
+      display: flex;
+      border-bottom: 2px solid #444;
+      margin-bottom: 20px;
+    }
+
+    .tab-button {
+      flex: 1;
+      padding: 12px 20px;
+      background-color: #333;
+      color: #ffffff;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .tab-button:hover {
+      background-color: #444;
+    }
+
+    .tab-button.active {
+      background-color: #4CAF50;
+      border-bottom-color: #4CAF50;
+      color: white;
+    }
+
+    .tab-button:active {
+      transform: scale(0.98);
+    }
+
+    .tab-content {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Deposit tab specific styles */
+    h3 {
+      color: #4CAF50;
+      margin: 15px 0 10px 0;
+      font-size: 18px;
+    }
+
+    #till_requirements {
+      background-color: #2a2a2a;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 10px 0;
+      border-left: 4px solid #4CAF50;
+    }
+
+    .till-item {
+      margin: 8px 0;
+      padding: 5px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .till-item.highlight-required {
+      background-color: rgba(76, 175, 80, 0.2);
+      padding: 8px;
+      border-radius: 4px;
+      animation: highlight 1s ease-out;
+    }
+
+    /* Readonly input styles */
+    input[type="number"][readonly] {
+      background-color: #2a2a2a;
+      color: #aaa;
+      cursor: not-allowed;
+      border-color: #555;
+    }
+
+    input[type="number"][readonly]:focus {
+      outline: none;
+      border-color: #555;
+      background-color: #2a2a2a;
+    }
+
     input[type="number"]:focus {
       outline: 2px solid #4CAF50;
       border-color: #4CAF50;
+      /* Remove tap highlight on mobile */
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Better touch feedback */
+    input[type="number"]:active {
+      background-color: #444;
+      transform: scale(0.98);
+      transition: all 0.1s ease;
+    }
+
+    /* Smooth transitions for all inputs */
+    input[type="number"] {
+      transition: all 0.2s ease;
+      /* Remove tap highlight color for iOS */
+      -webkit-tap-highlight-color: transparent;
     }
 
     /* Animation for total updates */
@@ -175,6 +331,100 @@
 
     .highlight {
       animation: highlight 1s ease-out;
+    }
+
+    /* Mobile styles */
+    @media (max-width: 480px) {
+      body {
+        padding: 10px 0;
+        /* Reduced padding on mobile */
+      }
+
+      .container {
+        padding: 20px 15px;
+        /* Better padding for mobile */
+        width: 95%;
+        /* Use more screen width on mobile */
+        margin: 0 auto;
+      }
+
+      p {
+        margin: 12px 0;
+        /* Increased spacing between rows on mobile */
+        flex-wrap: wrap;
+        /* Allow wrapping if needed */
+      }
+
+      label {
+        font-size: 16px;
+        /* Consistent font size on mobile */
+        min-width: 0;
+        /* Remove min-width restrictions */
+      }
+
+      input[type="number"] {
+        width: 80px;
+        /* Slightly wider on mobile */
+        margin-left: 8px;
+        margin-right: 8px;
+      }
+
+      #open_cash {
+        width: 120px;
+        /* Even wider for open cash on mobile */
+      }
+
+      .reset-button {
+        width: 100%;
+        /* Full width button on mobile */
+        padding: 15px;
+        /* Larger padding for easier tapping */
+        font-size: 18px;
+        /* Larger font for better readability */
+        margin-top: 20px;
+      }
+
+      .sync-button {
+        width: 100%;
+        /* Full width button on mobile */
+        padding: 15px;
+        /* Larger padding for easier tapping */
+        font-size: 16px;
+        /* Larger font for better readability */
+        min-width: auto;
+      }
+
+      /* Stack buttons vertically on mobile */
+      div[style*="display: flex"] {
+        flex-direction: column !important;
+        gap: 10px !important;
+      }
+
+      span {
+        font-size: 16px;
+        /* Consistent font size for results */
+      }
+
+      hr {
+        margin: 15px 0;
+        /* More spacing around dividers */
+      }
+    }
+
+    /* Tablet styles */
+    @media (min-width: 481px) and (max-width: 768px) {
+      .container {
+        width: 85%;
+        padding: 25px 20px;
+      }
+
+      input[type="number"] {
+        width: 75px;
+      }
+
+      #open_cash {
+        width: 110px;
+      }
     }
 
     /* Print styles */
@@ -198,58 +448,178 @@
 
 <body>
   <div class="container">
-    <p>
-      <label for="open_cash">Open Cash:</label>
-      $<input type="number" id="open_cash" value="300" inputmode="numeric" aria-label="Open cash amount">
-    </p>
-    <hr style="border-color: #444;">
-    <p><label for="toonie_roll">Toonie Rolls x</label> <input type="number" name="toonie_roll" id="toonie_roll"
-        inputmode="numeric" aria-label="Number of toonie rolls"> = $<span id="total_toonie">0.00</span></p>
-    <p><label for="loonie_roll">Loonie Rolls x</label> <input type="number" name="loonie_roll" id="loonie_roll"
-        inputmode="numeric" aria-label="Number of loonie rolls"> = $<span id="total_loonie">0.00</span></p>
-    <p><label for="quarter_roll">Quarter Rolls x</label> <input type="number" name="quarter_roll" id="quarter_roll"
-        inputmode="numeric" aria-label="Number of quarter rolls"> = $<span id="total_quarter">0.00</span></p>
-    <p><label for="dime_roll">Dime Rolls x</label> <input type="number" name="dime_roll" id="dime_roll"
-        inputmode="numeric" aria-label="Number of dime rolls"> = $<span id="total_dime">0.00</span></p>
-    <p><label for="nickel_roll">Nickel Rolls x</label> <input type="number" name="nickel_roll" id="nickel_roll"
-        inputmode="numeric" aria-label="Number of nickel rolls"> = $<span id="total_nickel">0.00</span></p>
-    <hr style="border-color: #444;">
-    <p><label for="hundre_dollar_bill_count">$100 Bills x</label> <input type="number" name="hundre_dollar_bill_count"
-        id="hundre_dollar_bill_count" inputmode="numeric" aria-label="Number of 100 dollar bills"> = $<span
-        id="total_hundre_dollar_bill">0.00</span></p>
-    <p><label for="fifty_dollar_bill_count">$50 Bills x</label> <input type="number" name="fifty_dollar_bill_count"
-        id="fifty_dollar_bill_count" inputmode="numeric" aria-label="Number of 50 dollar bills"> = $<span
-        id="total_fifty_dollar_bill">0.00</span></p>
-    <p><label for="twenty_dollar_bill_count">$20 Bills x</label> <input type="number" name="twenty_dollar_bill_count"
-        id="twenty_dollar_bill_count" inputmode="numeric" aria-label="Number of 20 dollar bills"> = $<span
-        id="total_twenty_dollar_bill">0.00</span></p>
-    <p><label for="ten_dollar_bill_count">$10 Bills x</label> <input type="number" name="ten_dollar_bill_count"
-        id="ten_dollar_bill_count" inputmode="numeric" aria-label="Number of 10 dollar bills"> = $<span
-        id="total_ten_dollar_bill">0.00</span></p>
-    <p><label for="five_dollar_bill_count">$5 Bills x</label> <input type="number" name="five_dollar_bill_count"
-        id="five_dollar_bill_count" inputmode="numeric" aria-label="Number of 5 dollar bills"> = $<span
-        id="total_five_dollar_bill">0.00</span></p>
-    <hr style="border-color: #444;">
-    <p><label for="two_dollar_coins_count">$2 Coins x</label> <input type="number" name="two_dollar_coins_count"
-        id="two_dollar_coins_count" inputmode="numeric" aria-label="Number of 2 dollar coins"> = $<span
-        id="total_two_dollar_coins">0.00</span></p>
-    <p><label for="one_dollar_coins_count">$1 Coins x</label> <input type="number" name="one_dollar_coins_count"
-        id="one_dollar_coins_count" inputmode="numeric" aria-label="Number of 1 dollar coins"> = $<span
-        id="total_one_dollar_coins">0.00</span></p>
-    <p><label for="quarter_count">$0.25 Coins x</label> <input type="number" name="quarter_count" id="quarter_count"
-        inputmode="numeric" aria-label="Number of quarter coins"> = $<span id="total_quarter_cent">0.00</span></p>
-    <p><label for="ten_cent_count">$0.10 Coins x</label> <input type="number" name="ten_cent_count" id="ten_cent_count"
-        inputmode="numeric" aria-label="Number of 10 cent coins"> = $<span id="total_ten_cent">0.00</span></p>
-    <p><label for="five_cent_count">$0.05 Coins x</label> <input type="number" name="five_cent_count"
-        id="five_cent_count" inputmode="numeric" aria-label="Number of 5 cent coins"> = $<span
-        id="total_five_cent">0.00</span></p>
-    <hr style="border-color: #444;">
-    <p><strong>Total: $<span id="grand_total">0.00</span></strong></p>
-    <p><strong>Difference: $<span id="difference">0.00</span></strong></p>
-    <button class="reset-button" id="resetButton" aria-label="Reset all values">Reset All</button>
+    <!-- Tab Navigation -->
+    <div class="tab-container">
+      <div class="tab-buttons">
+        <button class="tab-button active" data-tab="calculator">Count Calculator</button>
+        <button class="tab-button" data-tab="deposit">Deposit Helper</button>
+      </div>
+    </div>
+
+    <!-- Calculator Tab Content -->
+    <div class="tab-content" id="calculator-tab">
+      <p>
+        <label for="open_cash">Open Cash:</label>
+        $<input type="number" id="open_cash" value="300" inputmode="numeric" aria-label="Open cash amount">
+      </p>
+      <hr style="border-color: #444;">
+      <p><label for="toonie_roll">Toonie Rolls x</label> <input type="number" name="toonie_roll" id="toonie_roll"
+          inputmode="numeric" aria-label="Number of toonie rolls"> = $<span id="total_toonie">0.00</span></p>
+      <p><label for="loonie_roll">Loonie Rolls x</label> <input type="number" name="loonie_roll" id="loonie_roll"
+          inputmode="numeric" aria-label="Number of loonie rolls"> = $<span id="total_loonie">0.00</span></p>
+      <p><label for="quarter_roll">Quarter Rolls x</label> <input type="number" name="quarter_roll" id="quarter_roll"
+          inputmode="numeric" aria-label="Number of quarter rolls"> = $<span id="total_quarter">0.00</span></p>
+      <p><label for="dime_roll">Dime Rolls x</label> <input type="number" name="dime_roll" id="dime_roll"
+          inputmode="numeric" aria-label="Number of dime rolls"> = $<span id="total_dime">0.00</span></p>
+      <p><label for="nickel_roll">Nickel Rolls x</label> <input type="number" name="nickel_roll" id="nickel_roll"
+          inputmode="numeric" aria-label="Number of nickel rolls"> = $<span id="total_nickel">0.00</span></p>
+      <hr style="border-color: #444;">
+      <p><label for="hundre_dollar_bill_count">$100 Bills x</label> <input type="number" name="hundre_dollar_bill_count"
+          id="hundre_dollar_bill_count" inputmode="numeric" aria-label="Number of 100 dollar bills"> = $<span
+          id="total_hundre_dollar_bill">0.00</span></p>
+      <p><label for="fifty_dollar_bill_count">$50 Bills x</label> <input type="number" name="fifty_dollar_bill_count"
+          id="fifty_dollar_bill_count" inputmode="numeric" aria-label="Number of 50 dollar bills"> = $<span
+          id="total_fifty_dollar_bill">0.00</span></p>
+      <p><label for="twenty_dollar_bill_count">$20 Bills x</label> <input type="number" name="twenty_dollar_bill_count"
+          id="twenty_dollar_bill_count" inputmode="numeric" aria-label="Number of 20 dollar bills"> = $<span
+          id="total_twenty_dollar_bill">0.00</span></p>
+      <p><label for="ten_dollar_bill_count">$10 Bills x</label> <input type="number" name="ten_dollar_bill_count"
+          id="ten_dollar_bill_count" inputmode="numeric" aria-label="Number of 10 dollar bills"> = $<span
+          id="total_ten_dollar_bill">0.00</span></p>
+      <p><label for="five_dollar_bill_count">$5 Bills x</label> <input type="number" name="five_dollar_bill_count"
+          id="five_dollar_bill_count" inputmode="numeric" aria-label="Number of 5 dollar bills"> = $<span
+          id="total_five_dollar_bill">0.00</span></p>
+      <hr style="border-color: #444;">
+      <p><label for="two_dollar_coins_count">$2 Coins x</label> <input type="number" name="two_dollar_coins_count"
+          id="two_dollar_coins_count" inputmode="numeric" aria-label="Number of 2 dollar coins"> = $<span
+          id="total_two_dollar_coins">0.00</span></p>
+      <p><label for="one_dollar_coins_count">$1 Coins x</label> <input type="number" name="one_dollar_coins_count"
+          id="one_dollar_coins_count" inputmode="numeric" aria-label="Number of 1 dollar coins"> = $<span
+          id="total_one_dollar_coins">0.00</span></p>
+      <p><label for="quarter_count">$0.25 Coins x</label> <input type="number" name="quarter_count" id="quarter_count"
+          inputmode="numeric" aria-label="Number of quarter coins"> = $<span id="total_quarter_cent">0.00</span></p>
+      <p><label for="ten_cent_count">$0.10 Coins x</label> <input type="number" name="ten_cent_count"
+          id="ten_cent_count" inputmode="numeric" aria-label="Number of 10 cent coins"> = $<span
+          id="total_ten_cent">0.00</span></p>
+      <p><label for="five_cent_count">$0.05 Coins x</label> <input type="number" name="five_cent_count"
+          id="five_cent_count" inputmode="numeric" aria-label="Number of 5 cent coins"> = $<span
+          id="total_five_cent">0.00</span></p>
+      <hr style="border-color: #444;">
+      <p><strong>Total: $<span id="grand_total">0.00</span></strong></p>
+      <p><strong>Difference: $<span id="difference">0.00</span></strong></p>
+      <button class="reset-button" id="resetButton" aria-label="Reset all values">Reset All</button>
+    </div>
+
+    <!-- Deposit Tab Content -->
+    <div class="tab-content" id="deposit-tab" style="display: none;">
+      <p>
+        <label for="received_cash">Received Cash Today:</label>
+        $<input type="number" id="received_cash" value="0" inputmode="numeric" aria-label="Received cash amount"
+          step="0.01">
+      </p>
+
+      <hr style="border-color: #444;">
+
+      <!-- Input section for received bills/coins -->
+      <h3>What you have (from calculator):</h3>
+      <p><label for="dep_hundre_dollar_bill_count">$100 Bills x</label> <input type="number"
+          name="dep_hundre_dollar_bill_count" id="dep_hundre_dollar_bill_count" inputmode="numeric"
+          aria-label="Number of 100 dollar bills received" readonly> = $<span
+          id="dep_total_hundre_dollar_bill">0.00</span></p>
+      <p><label for="dep_fifty_dollar_bill_count">$50 Bills x</label> <input type="number"
+          name="dep_fifty_dollar_bill_count" id="dep_fifty_dollar_bill_count" inputmode="numeric"
+          aria-label="Number of 50 dollar bills received" readonly> = $<span
+          id="dep_total_fifty_dollar_bill">0.00</span></p>
+      <p><label for="dep_twenty_dollar_bill_count">$20 Bills x</label> <input type="number"
+          name="dep_twenty_dollar_bill_count" id="dep_twenty_dollar_bill_count" inputmode="numeric"
+          aria-label="Number of 20 dollar bills received" readonly> = $<span
+          id="dep_total_twenty_dollar_bill">0.00</span></p>
+      <p><label for="dep_ten_dollar_bill_count">$10 Bills x</label> <input type="number"
+          name="dep_ten_dollar_bill_count" id="dep_ten_dollar_bill_count" inputmode="numeric"
+          aria-label="Number of 10 dollar bills received" readonly> = $<span id="dep_total_ten_dollar_bill">0.00</span>
+      </p>
+      <p><label for="dep_five_dollar_bill_count">$5 Bills x</label> <input type="number"
+          name="dep_five_dollar_bill_count" id="dep_five_dollar_bill_count" inputmode="numeric"
+          aria-label="Number of 5 dollar bills received" readonly> = $<span id="dep_total_five_dollar_bill">0.00</span>
+      </p>
+
+      <hr style="border-color: #444;">
+
+      <p><label for="dep_two_dollar_coins_count">$2 Coins x</label> <input type="number"
+          name="dep_two_dollar_coins_count" id="dep_two_dollar_coins_count" inputmode="numeric"
+          aria-label="Number of 2 dollar coins received" readonly> = $<span id="dep_total_two_dollar_coins">0.00</span>
+      </p>
+      <p><label for="dep_one_dollar_coins_count">$1 Coins x</label> <input type="number"
+          name="dep_one_dollar_coins_count" id="dep_one_dollar_coins_count" inputmode="numeric"
+          aria-label="Number of 1 dollar coins received" readonly> = $<span id="dep_total_one_dollar_coins">0.00</span>
+      </p>
+      <p><label for="dep_quarter_count">$0.25 Coins x</label> <input type="number" name="dep_quarter_count"
+          id="dep_quarter_count" inputmode="numeric" aria-label="Number of quarter coins received" readonly> = $<span
+          id="dep_total_quarter_cent">0.00</span></p>
+      <p><label for="dep_ten_cent_count">$0.10 Coins x</label> <input type="number" name="dep_ten_cent_count"
+          id="dep_ten_cent_count" inputmode="numeric" aria-label="Number of 10 cent coins received" readonly> = $<span
+          id="dep_total_ten_cent">0.00</span></p>
+      <p><label for="dep_five_cent_count">$0.05 Coins x</label> <input type="number" name="dep_five_cent_count"
+          id="dep_five_cent_count" inputmode="numeric" aria-label="Number of 5 cent coins received" readonly> = $<span
+          id="dep_total_five_cent">0.00</span></p>
+
+      <hr style="border-color: #444;">
+
+      <hr style="border-color: #444;">
+
+      <h3>Take from till:</h3>
+      <div id="till_requirements"></div>
+    </div>
   </div>
 
   <script>
+    // Tab switching functionality
+    function switchTab(tabName) {
+      // Hide all tab contents
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabContents.forEach(content => {
+        content.style.display = 'none';
+      });
+
+      // Remove active class from all tab buttons
+      const tabButtons = document.querySelectorAll('.tab-button');
+      tabButtons.forEach(button => {
+        button.classList.remove('active');
+      });
+
+      // Show selected tab content
+      const selectedTab = document.getElementById(tabName + '-tab');
+      if (selectedTab) {
+        selectedTab.style.display = 'block';
+      }
+
+      // Add active class to selected button
+      const selectedButton = document.querySelector(`[data-tab="${tabName}"]`);
+      if (selectedButton) {
+        selectedButton.classList.add('active');
+      }
+
+      // Auto-sync when switching to deposit tab
+      if (tabName === 'deposit') {
+        autoSyncFromCalculator();
+      }
+
+    }
+
+    // Add event listeners for tab buttons
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabButtons = document.querySelectorAll('.tab-button');
+      tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const tabName = button.getAttribute('data-tab');
+          switchTab(tabName);
+        });
+      });
+
+      // Initialize with calculator tab active
+      switchTab('calculator');
+    });
+
     // Define default values for rolls and bills/coins
     const defaults = {
       toonie_roll: 50,
@@ -404,7 +774,192 @@
         }
       });
       calculateGrandTotal(); // Calculate initial grand total and difference
+
+      // Initialize deposit calculator
+      initializeDepositCalculator();
     });
+
+    // Deposit Calculator Logic
+    const depositDefaults = {
+      dep_hundre_dollar_bill_count: 100,
+      dep_fifty_dollar_bill_count: 50,
+      dep_twenty_dollar_bill_count: 20,
+      dep_ten_dollar_bill_count: 10,
+      dep_five_dollar_bill_count: 5,
+      dep_two_dollar_coins_count: 2,
+      dep_one_dollar_coins_count: 1,
+      dep_quarter_count: 0.25,
+      dep_ten_cent_count: 0.10,
+      dep_five_cent_count: 0.05
+    };
+
+    function calculateDepositItemTotal(inputId) {
+      const inputElement = document.getElementById(inputId);
+      let resultId;
+
+      // Handle specific cent counts first
+      if (inputId === 'dep_quarter_count') {
+        resultId = 'dep_total_quarter_cent';
+      } else if (inputId === 'dep_ten_cent_count') {
+        resultId = 'dep_total_ten_cent';
+      } else if (inputId === 'dep_five_cent_count') {
+        resultId = 'dep_total_five_cent';
+      } else {
+        // Original logic for bills and coins
+        resultId = 'dep_total_' + inputId.replace(/^dep_/, '').replace(/_count$/, '');
+      }
+
+      let countValue = inputElement.value;
+      // Sanitize input: allow only digits
+      countValue = countValue.replace(/[^0-9]/g, '');
+      inputElement.value = countValue;
+
+      const count = parseInt(countValue) || 0;
+      const defaultValue = depositDefaults[inputId];
+      const total = defaultValue * count;
+
+      const resultElement = document.getElementById(resultId);
+      if (resultElement) {
+        resultElement.textContent = total.toFixed(2);
+      }
+
+      calculateDepositGrandTotal();
+    }
+
+    function calculateDepositGrandTotal() {
+      // Calculate total from synced money
+      const totalIds = [
+        'dep_total_hundre_dollar_bill', 'dep_total_fifty_dollar_bill', 'dep_total_twenty_dollar_bill',
+        'dep_total_ten_dollar_bill', 'dep_total_five_dollar_bill', 'dep_total_two_dollar_coins',
+        'dep_total_one_dollar_coins', 'dep_total_quarter_cent', 'dep_total_ten_cent', 'dep_total_five_cent'
+      ];
+
+      const totalYouHave = totalIds.reduce((acc, id) => {
+        const element = document.getElementById(id);
+        return acc + (parseFloat(element?.textContent) || 0);
+      }, 0);
+
+      // Get received cash amount
+      const receivedCashInput = document.getElementById('received_cash');
+      let receivedCashValue = receivedCashInput.value;
+      receivedCashValue = receivedCashValue.replace(/[^0-9.]/g, '');
+      const decimalParts = receivedCashValue.split('.');
+      if (decimalParts.length > 2) {
+        receivedCashValue = decimalParts[0] + '.' + decimalParts.slice(1).join('');
+      }
+      receivedCashInput.value = receivedCashValue;
+
+      const receivedCash = parseFloat(receivedCashValue) || 0;
+
+      // Display till requirements based on received cash amount only
+      calculateTillRequirements(receivedCash);
+    }
+
+    function calculateTillRequirements(receivedAmount) {
+      const tillRequirementsDiv = document.getElementById('till_requirements');
+
+      if (receivedAmount <= 0) {
+        tillRequirementsDiv.innerHTML = '<p style="color: #aaa;">Enter the received cash amount to see till requirements.</p>';
+        return;
+      }
+
+      let remaining = receivedAmount;
+      const denominations = [
+        { name: '$100 Bills', value: 100 },
+        { name: '$50 Bills', value: 50 },
+        { name: '$20 Bills', value: 20 },
+        { name: '$10 Bills', value: 10 },
+        { name: '$5 Bills', value: 5 },
+        { name: '$2 Coins', value: 2 },
+        { name: '$1 Coins', value: 1 },
+        { name: '$0.25 Coins', value: 0.25 },
+        { name: '$0.10 Coins', value: 0.10 },
+        { name: '$0.05 Coins', value: 0.05 }
+      ];
+
+      let html = `<p style="color: #4CAF50; margin-bottom: 15px;"><strong>To make $${receivedAmount.toFixed(2)}, take from till:</strong></p>`;
+
+      denominations.forEach(denom => {
+        if (remaining >= denom.value) {
+          const count = Math.floor(remaining / denom.value);
+          const amount = count * denom.value;
+          remaining = Math.round((remaining - amount) * 100) / 100; // Handle floating point precision
+
+          html += `<div class="till-item highlight-required">
+            <span>${denom.name} x ${count}</span>
+            <span style="color: #4CAF50;">= $${amount.toFixed(2)}</span>
+          </div>`;
+        }
+      });
+
+      if (remaining > 0.001) { // Account for floating point precision
+        html += `<div class="till-item" style="color: #F44336;">
+          <span>⚠️ Cannot make exact amount - remaining:</span>
+          <span>$${remaining.toFixed(2)}</span>
+        </div>`;
+      }
+
+      tillRequirementsDiv.innerHTML = html;
+    }
+
+    function resetDepositAll() {
+      Object.keys(depositDefaults).forEach(inputId => {
+        const inputElement = document.getElementById(inputId);
+        if (inputElement) {
+          inputElement.value = '';
+          calculateDepositItemTotal(inputId);
+        }
+      });
+
+      const receivedCashInput = document.getElementById('received_cash');
+      if (receivedCashInput) {
+        receivedCashInput.value = '0';
+        calculateDepositGrandTotal();
+      }
+    }
+
+    // Auto-sync data from Count Calculator to Deposit Helper
+    function autoSyncFromCalculator() {
+      // Mapping between calculator and deposit field IDs
+      const fieldMapping = {
+        'hundre_dollar_bill_count': 'dep_hundre_dollar_bill_count',
+        'fifty_dollar_bill_count': 'dep_fifty_dollar_bill_count',
+        'twenty_dollar_bill_count': 'dep_twenty_dollar_bill_count',
+        'ten_dollar_bill_count': 'dep_ten_dollar_bill_count',
+        'five_dollar_bill_count': 'dep_five_dollar_bill_count',
+        'two_dollar_coins_count': 'dep_two_dollar_coins_count',
+        'one_dollar_coins_count': 'dep_one_dollar_coins_count',
+        'quarter_count': 'dep_quarter_count',
+        'ten_cent_count': 'dep_ten_cent_count',
+        'five_cent_count': 'dep_five_cent_count'
+      };
+
+      // Copy values from calculator to deposit helper
+      Object.keys(fieldMapping).forEach(calcId => {
+        const calcElement = document.getElementById(calcId);
+        const depElement = document.getElementById(fieldMapping[calcId]);
+
+        if (calcElement && depElement) {
+          depElement.value = calcElement.value || '';
+          // Trigger calculation for the copied value
+          calculateDepositItemTotal(fieldMapping[calcId]);
+        }
+      });
+
+      // Recalculate everything
+      calculateDepositGrandTotal();
+    }
+
+    function initializeDepositCalculator() {
+      // Add event listener for received cash input (only editable field)
+      const receivedCashInput = document.getElementById('received_cash');
+      if (receivedCashInput) {
+        receivedCashInput.addEventListener('input', calculateDepositGrandTotal);
+      }
+
+      // Initial calculation
+      calculateDepositGrandTotal();
+    }
 
   </script>
 </body>
