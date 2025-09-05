@@ -1,0 +1,16 @@
+{
+  "name": "coin_calculator",
+  "version": "1.0.0",
+  "description": "A simple coin calculator webpage",
+  "main": "index.html",
+  "scripts": {
+    "test": "vitest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jsdom": "^24.0.0",
+    "vitest": "^1.5.0"
+  }
+}
