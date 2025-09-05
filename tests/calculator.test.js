@@ -116,3 +116,104 @@ describe('Coin Calculator', () => {
     expect(document.getElementById('difference').textContent).toBe('-300.00');
   });
 });
+
+describe('Deposit Helper', () => {
+  let dom;
+  let window;
+  let document;
+
+  beforeEach(() => {
+    const html = fs.readFileSync(path.resolve(__dirname, '../index.html'), 'utf-8');
+    dom = new JSDOM(html, { runScripts: 'dangerously', resources: 'usable' });
+    window = dom.window;
+    document = window.document;
+
+    // JSDOM doesn't run DOMContentLoaded automatically on load
+    document.dispatchEvent(new window.Event('DOMContentLoaded', {
+      bubbles: true,
+      cancelable: true,
+    }));
+  });
+
+  it('should switch to deposit tab and sync data from calculator', () => {
+    // 1. Set values in the calculator tab
+    const hundredBillInput = document.getElementById('hundre_dollar_bill_count');
+    hundredBillInput.value = 5;
+    hundredBillInput.dispatchEvent(new window.Event('input', { bubbles: true }));
+
+    const twentyBillInput = document.getElementById('twenty_dollar_bill_count');
+    twentyBillInput.value = 3;
+    twentyBillInput.dispatchEvent(new window.Event('input', { bubbles: true }));
+
+    // 2. Switch to the deposit tab
+    const depositTabButton = document.querySelector('[data-tab="deposit"]');
+    depositTabButton.click();
+
+    // 3. Verify data is synced
+    expect(document.getElementById('dep_hundre_dollar_bill_count').value).toBe('5');
+    expect(document.getElementById('dep_twenty_dollar_bill_count').value).toBe('3');
+
+    // Check that totals are calculated in deposit tab as well
+    expect(document.getElementById('dep_total_hundre_dollar_bill').textContent).toBe('500.00');
+    expect(document.getElementById('dep_total_twenty_dollar_bill').textContent).toBe('60.00');
+  });
+
+  it('should calculate till requirements correctly', () => {
+    // 1. Set values in the calculator tab
+    document.getElementById('hundre_dollar_bill_count').value = 2;
+    document.getElementById('hundre_dollar_bill_count').dispatchEvent(new window.Event('input', { bubbles: true })); // 200
+    document.getElementById('twenty_dollar_bill_count').value = 3;
+    document.getElementById('twenty_dollar_bill_count').dispatchEvent(new window.Event('input', { bubbles: true })); // 60
+    document.getElementById('five_dollar_bill_count').value = 4;
+    document.getElementById('five_dollar_bill_count').dispatchEvent(new window.Event('input', { bubbles: true }));  // 20
+    document.getElementById('one_dollar_coins_count').value = 5;
+    document.getElementById('one_dollar_coins_count').dispatchEvent(new window.Event('input', { bubbles: true })); // 5
+
+    // 2. Switch to the deposit tab to sync
+    document.querySelector('[data-tab="deposit"]').click();
+
+    // 3. Set received cash
+    const receivedCashInput = document.getElementById('received_cash');
+    receivedCashInput.value = '226'; // Needs 2x100, 1x20, 1x5, 1x1
+    receivedCashInput.dispatchEvent(new window.Event('input', { bubbles: true }));
+
+    // 4. Verify till requirements
+    const tillRequirementsDiv = document.getElementById('till_requirements');
+    const tillItems = tillRequirementsDiv.querySelectorAll('.till-item');
+
+    expect(tillItems.length).toBe(4); // Four denominations are needed
+    expect(tillItems[0].textContent).toContain('$100 Bills x 2');
+    expect(tillItems[0].textContent).toContain('$200.00');
+
+    expect(tillItems[1].textContent).toContain('$20 Bills x 1');
+    expect(tillItems[1].textContent).toContain('$20.00');
+
+    expect(tillItems[2].textContent).toContain('$5 Bills x 1');
+    expect(tillItems[2].textContent).toContain('$5.00');
+
+    expect(tillItems[3].textContent).toContain('$1 Coins x 1');
+    expect(tillItems[3].textContent).toContain('$1.00');
+  });
+
+  it('should show a warning if the exact amount cannot be made', () => {
+    // 1. Set values in the calculator tab (not enough to make the amount)
+    document.getElementById('twenty_dollar_bill_count').value = 3; // Total of 60
+    document.getElementById('twenty_dollar_bill_count').dispatchEvent(new window.Event('input', { bubbles: true }));
+
+    // 2. Switch to deposit tab
+    document.querySelector('[data-tab="deposit"]').click();
+
+    // 3. Set received cash to an amount that cannot be made
+    const receivedCashInput = document.getElementById('received_cash');
+    receivedCashInput.value = '65';
+    receivedCashInput.dispatchEvent(new window.Event('input', { bubbles: true }));
+
+    // 4. Verify the warning message
+    const tillRequirementsDiv = document.getElementById('till_requirements');
+    const warningMessage = tillRequirementsDiv.querySelector('.till-item[style*="color: #F44336;"]');
+
+    expect(warningMessage).not.toBe(null);
+    expect(warningMessage.textContent).toContain('Cannot make exact amount - remaining:');
+    expect(warningMessage.textContent).toContain('$5.00');
+  });
+});
