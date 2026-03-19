@@ -283,6 +283,167 @@
       animation: highlight 1s ease-out;
     }
 
+    /* Photo Upload Styles */
+    .photo-section {
+      background-color: #2a2a2a;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .photo-section h4 {
+      margin-top: 0;
+      color: #90CAF9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      margin: 10px 0;
+    }
+
+    .file-input-btn {
+      border: 2px dashed #4CAF50;
+      color: #fff;
+      background-color: transparent;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .file-input-btn:hover {
+      background-color: rgba(76, 175, 80, 0.1);
+    }
+
+    .file-input-wrapper input[type=file] {
+      position: absolute;
+      top: 0;
+      right: 0;
+      min-width: 100%;
+      min-height: 100%;
+      font-size: 100px;
+      text-align: right;
+      filter: alpha(opacity=0);
+      opacity: 0;
+      outline: none;
+      background: white;
+      cursor: inherit;
+      display: block;
+    }
+
+    .preview-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+      justify-content: flex-start;
+      /* Align internal previews */
+    }
+
+    .preview-image-wrapper {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid #555;
+    }
+
+    .preview-image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .preview-remove {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: rgba(244, 67, 54, 0.8);
+      color: white;
+      border: none;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .copy-btn {
+      background-color: #FF9800;
+      /* Orange for copy actions */
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 10px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .copy-btn:disabled {
+      background-color: #555;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .highlight-warning {
+      border: 2px solid #F44336;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(244, 67, 54, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(244, 67, 54, 0);
+      }
+    }
+
+    .warning-text {
+      color: #F44336;
+      font-size: 13px;
+      margin-top: 5px;
+      display: none;
+      font-weight: bold;
+    }
+
+    /* Merged result preview modal/area (hidden by default) */
+    .merged-preview {
+      margin-top: 15px;
+      border: 1px solid #444;
+      padding: 10px;
+      background: #000;
+      display: none;
+    }
+
+    .merged-preview img {
+      max-width: 100%;
+      height: auto;
+    }
+
     /* Readonly input styles */
     input[type="number"][readonly] {
       background-color: #2a2a2a;
@@ -453,6 +614,7 @@
       <div class="tab-buttons">
         <button class="tab-button active" data-tab="calculator">Count Calculator</button>
         <button class="tab-button" data-tab="deposit">Deposit Helper</button>
+        <button class="tab-button" data-tab="photos">Photos</button>
       </div>
     </div>
 
@@ -512,10 +674,23 @@
 
     <!-- Deposit Tab Content -->
     <div class="tab-content" id="deposit-tab" style="display: none;">
+      <!-- ... (previous deposit content) ... -->
       <p>
-        <label for="received_cash">Received Cash Today:</label>
+        <label for="received_cash">Received Cash:</label>
         $<input type="number" id="received_cash" value="0" inputmode="decimal" aria-label="Received cash amount"
           step="0.01">
+      </p>
+      <p>
+        <label for="payout_cash">Payout Cash:</label>
+        $<input type="number" id="payout_cash" value="0" inputmode="decimal" aria-label="Payout cash amount"
+          step="0.01">
+        <span style="font-size: 0.9em; margin: 0 5px;">Count:</span>
+        <input type="number" id="payout_count" value="0" inputmode="numeric" aria-label="Payout count"
+          style="width: 50px;">
+      </p>
+      <p>
+        <label>Total Deposit:</label>
+        <strong>$<span id="net_deposit">0.00</span></strong>
       </p>
 
       <hr style="border-color: #444;">
@@ -569,6 +744,67 @@
 
       <h3>Take from till:</h3>
       <div id="till_requirements"></div>
+    </div>
+
+    <!-- Photos Tab Content -->
+    <div class="tab-content" id="photos-tab" style="display: none;">
+      <!-- Section 1: Store Detail (Green One) -->
+      <div class="photo-section" id="section-store">
+        <h4>1. Store Detail (Green One)</h4>
+        <div class="file-input-wrapper">
+          <button class="file-input-btn">📸 Take Photo / Upload</button>
+          <input type="file" accept="image/*" id="input-store" capture="environment">
+        </div>
+        <div class="preview-container" id="preview-store"></div>
+        <button class="copy-btn" id="copy-store" disabled>📋 Copy Image</button>
+      </div>
+
+      <!-- Combined Bank & Payout Actions -->
+      <div class="photo-section" style="border: 1px dashed #4CAF50;">
+        <h4 style="justify-content: center; color: #fff;">Combined Bank & Payout</h4>
+        <div style="font-size: 0.9em; color: #aaa; text-align: center; margin-bottom: 10px;">
+          Upload photos in sections 2 & 3 below, then copy combined image here.
+        </div>
+        <button class="copy-btn" id="copy-combined-bank-payout" disabled style="background-color: #4CAF50;">📋 Copy
+          Merged (Bank + Payout)</button>
+        <div class="merged-preview" id="merged-preview-container" style="display:none; text-align: center;">
+          <p style="margin:0 0 5px 0; color:#aaa; font-size:12px;">Merged Preview:</p>
+          <img id="merged-result-img" />
+        </div>
+      </div>
+
+      <!-- Section 2: Bank Stuff -->
+      <div class="photo-section" id="section-bank">
+        <h4>2. Bank Stuff</h4>
+        <div class="file-input-wrapper">
+          <button class="file-input-btn">📸 Take Bank Photos</button>
+          <input type="file" accept="image/*" id="input-bank" multiple capture="environment">
+        </div>
+        <div class="preview-container" id="preview-bank"></div>
+      </div>
+
+      <!-- Section 3: Payout -->
+      <div class="photo-section" id="section-payout">
+        <h4>3. Payout Receipts</h4>
+        <div class="warning-text" id="payout-warning">⚠️ Warning: Uploaded <span id="payout-uploaded-count">0</span>
+          photos, but matched count is <span id="payout-expected-count">0</span>!</div>
+        <div class="file-input-wrapper">
+          <button class="file-input-btn">📸 Take Payout Photos</button>
+          <input type="file" accept="image/*" id="input-payout" multiple capture="environment">
+        </div>
+        <div class="preview-container" id="preview-payout"></div>
+      </div>
+
+      <!-- Section 4: Environment -->
+      <div class="photo-section" id="section-env">
+        <h4>4. Environment Photos</h4>
+        <div class="file-input-wrapper">
+          <button class="file-input-btn">📸 Take Environment Photos</button>
+          <input type="file" accept="image/*" id="input-env" multiple capture="environment">
+        </div>
+        <div class="preview-container" id="preview-env"></div>
+        <button class="copy-btn" id="copy-env" disabled>📋 Copy Environment Photos</button>
+      </div>
     </div>
   </div>
 
@@ -725,17 +961,19 @@
 
     // Function to reset all inputs
     function resetAll() {
-      Object.keys(defaults).forEach(inputId => {
-        const inputElement = document.getElementById(inputId);
-        if (inputElement) {
-          inputElement.value = '';
-          calculateItemTotal(inputId);
+      if (confirm('Are you sure you want to reset all data?')) {
+        Object.keys(defaults).forEach(inputId => {
+          const inputElement = document.getElementById(inputId);
+          if (inputElement) {
+            inputElement.value = '';
+            calculateItemTotal(inputId);
+          }
+        });
+        const openCashInput = document.getElementById('open_cash');
+        if (openCashInput) {
+          openCashInput.value = '300';
+          calculateGrandTotal();
         }
-      });
-      const openCashInput = document.getElementById('open_cash');
-      if (openCashInput) {
-        openCashInput.value = '300';
-        calculateGrandTotal();
       }
     }
 
@@ -839,32 +1077,43 @@
         return acc + (parseFloat(element?.textContent) || 0);
       }, 0);
 
-      // Get received cash amount
-      const receivedCashInput = document.getElementById('received_cash');
-      let receivedCashValue = receivedCashInput.value;
+      // Helper to process input (sanitize and return float)
+      const processInput = (inputId) => {
+        const input = document.getElementById(inputId);
+        if (!input) return 0;
+        let val = input.value;
+        let original = val;
+        val = val.replace(/[^0-9.]/g, '');
+        const decimalParts = val.split('.');
+        if (decimalParts.length > 2) {
+          val = decimalParts[0] + '.' + decimalParts[1];
+        } else if (decimalParts.length === 2 && decimalParts[1].length > 2) {
+          val = decimalParts[0] + '.' + decimalParts[1].substring(0, 2);
+        }
+        if (val !== original) {
+          input.value = val;
+        }
+        return parseFloat(val) || 0;
+      };
 
-      // Allow digits and decimal point, limit to 2 decimal places
-      let originalValue = receivedCashValue;
-      receivedCashValue = receivedCashValue.replace(/[^0-9.]/g, '');
+      const receivedCash = processInput('received_cash');
+      const payoutCash = processInput('payout_cash');
 
-      const decimalParts = receivedCashValue.split('.');
-      if (decimalParts.length > 2) {
-        // If multiple decimal points, keep only the first part and first decimal part
-        receivedCashValue = decimalParts[0] + '.' + decimalParts[1];
-      } else if (decimalParts.length === 2 && decimalParts[1].length > 2) {
-        // Limit to 2 decimal places
-        receivedCashValue = decimalParts[0] + '.' + decimalParts[1].substring(0, 2);
+      const netDeposit = receivedCash - payoutCash;
+
+      const netDepositElement = document.getElementById('net_deposit');
+      if (netDepositElement) {
+        netDepositElement.textContent = netDeposit.toFixed(2);
+        // Highlight negative values in red, positive in green
+        if (netDeposit < 0) {
+          netDepositElement.style.color = '#F44336'; // Red
+        } else {
+          netDepositElement.style.color = '#ffffff'; // White/default, or keep it neutral until calculated
+        }
       }
 
-      // Only update the input value if it actually changed to avoid cursor jumping
-      if (receivedCashValue !== originalValue) {
-        receivedCashInput.value = receivedCashValue;
-      }
-
-      const receivedCash = parseFloat(receivedCashValue) || 0;
-
-      // Display till requirements based on received cash amount only
-      calculateTillRequirements(receivedCash);
+      // Display till requirements based on net deposit amount only (if positive)
+      calculateTillRequirements(netDeposit > 0 ? netDeposit : 0);
     }
 
     function calculateTillRequirements(receivedAmount) {
@@ -946,11 +1195,14 @@
         }
       });
 
-      const receivedCashInput = document.getElementById('received_cash');
-      if (receivedCashInput) {
-        receivedCashInput.value = '0';
-        calculateDepositGrandTotal();
-      }
+      ['received_cash', 'payout_cash', 'payout_count'].forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+          input.value = id === 'payout_count' ? '0' : '0';
+          // Trigger updates if needed
+          if (id !== 'payout_count') calculateDepositGrandTotal();
+        }
+      });
     }
 
     // Auto-sync data from Count Calculator to Deposit Helper
@@ -986,24 +1238,277 @@
     }
 
     function initializeDepositCalculator() {
-      // Add event listener for received cash input (only editable field)
-      const receivedCashInput = document.getElementById('received_cash');
-      if (receivedCashInput) {
-        receivedCashInput.addEventListener('input', calculateDepositGrandTotal);
-        // Add blur event to auto-format when user finishes input
-        receivedCashInput.addEventListener('blur', function () {
-          let value = this.value.trim();
-          if (value && !value.includes('.')) {
-            // If no decimal point, add .00
-            this.value = value + '.00';
-            calculateDepositGrandTotal();
-          }
+      // Add event listeners for cash inputs
+      ['received_cash', 'payout_cash'].forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+          input.addEventListener('input', calculateDepositGrandTotal);
+          // Add blur event to auto-format when user finishes input
+          input.addEventListener('blur', function () {
+            let value = this.value.trim();
+            if (value && !value.includes('.')) {
+              // If no decimal point, add .00
+              this.value = value + '.00';
+              calculateDepositGrandTotal();
+            }
+          });
+        }
+      });
+
+      // Payout count - ensure positive integers
+      const payoutCount = document.getElementById('payout_count');
+      if (payoutCount) {
+        payoutCount.addEventListener('input', function () {
+          this.value = this.value.replace(/[^0-9]/g, '');
         });
       }
 
       // Initial calculation
       calculateDepositGrandTotal();
+
+      // Initialize Photo Handlers
+      initializePhotoHandlers();
     }
+
+    /* --- Photo Handling Logic --- */
+    function initializePhotoHandlers() {
+      // Configuration for section inputs and previews
+      const sections = ['store', 'bank', 'payout', 'env'];
+
+      // Store image blobs for merging later (specifically for bank and payout)
+      const imageStore = {
+        bank: [],
+        payout: []
+      };
+
+      sections.forEach(section => {
+        const input = document.getElementById(`input-${section}`);
+        const previewContainer = document.getElementById(`preview-${section}`);
+
+        if (input && previewContainer) {
+          input.addEventListener('change', function (e) {
+            handleFileSelect(e, previewContainer, section, imageStore);
+          });
+        }
+
+        // Add copy listener for single copy buttons
+        const copyBtn = document.getElementById(`copy-${section}`);
+        if (copyBtn) {
+          copyBtn.addEventListener('click', () => {
+            // For store and env, we merge all images in that section and copy
+            // This covers single or multiple images
+            const images = Array.from(previewContainer.querySelectorAll('img'));
+            if (images.length > 0) {
+              mergeAndCopyImages(images);
+            }
+          });
+        }
+      });
+
+      // Special Combined Copy Button (Bank + Payout)
+      const combinedCopyBtn = document.getElementById('copy-combined-bank-payout');
+      if (combinedCopyBtn) {
+        combinedCopyBtn.addEventListener('click', () => {
+          // Get all images from bank and payout preview containers in order
+          const bankImages = Array.from(document.querySelectorAll('#preview-bank img'));
+          const payoutImages = Array.from(document.querySelectorAll('#preview-payout img'));
+          const allImages = [...bankImages, ...payoutImages];
+
+          if (allImages.length > 0) {
+            mergeAndCopyImages(allImages, true); // true = show in merged preview for Combined
+          }
+        });
+      }
+    }
+
+    function handleFileSelect(event, container, section, imageStore) {
+      const files = event.target.files;
+      if (!files.length) return;
+
+      // For non-multiple inputs (like store maybe?), clear previous
+      if (!event.target.multiple) {
+        container.innerHTML = '';
+        // If it's bank or payout, clear the store array too, but store is single
+        if (section === 'bank') imageStore.bank = [];
+        if (section === 'payout') imageStore.payout = [];
+      }
+
+      Array.from(files).forEach(file => {
+        if (!file.type.match('image.*')) return;
+
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+          // Create preview element
+          const wrapper = document.createElement('div');
+          wrapper.className = 'preview-image-wrapper';
+
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.title = file.name;
+
+          const removeBtn = document.createElement('button');
+          removeBtn.className = 'preview-remove';
+          removeBtn.textContent = 'X';
+          removeBtn.onclick = function () {
+            wrapper.remove();
+            updateButtonState(section);
+            validatePayoutCount();
+          };
+
+          wrapper.appendChild(img);
+          wrapper.appendChild(removeBtn);
+          container.appendChild(wrapper);
+
+          // Update states
+          updateButtonState(section);
+          validatePayoutCount();
+        };
+
+        reader.readAsDataURL(file);
+      });
+
+      // Clear input so same file can be selected again if needed (and deleted)
+      event.target.value = '';
+    }
+
+    function updateButtonState(section) {
+      // Update Enable/Disable state of Copy buttons
+      const container = document.getElementById(`preview-${section}`);
+      const count = container.querySelectorAll('img').length;
+
+      const btn = document.getElementById(`copy-${section}`);
+      if (btn) btn.disabled = count === 0;
+
+      // Update Combined Button
+      const bankCount = document.querySelectorAll('#preview-bank img').length;
+      const payoutCount = document.querySelectorAll('#preview-payout img').length;
+      const combinedBtn = document.getElementById('copy-combined-bank-payout');
+      if (combinedBtn) {
+        combinedBtn.disabled = (bankCount + payoutCount) === 0;
+      }
+    }
+
+    function validatePayoutCount() {
+      // Check payout photos count vs declared count
+      const declaredCount = parseInt(document.getElementById('payout_count').value) || 0;
+      const uploadedCount = document.querySelectorAll('#preview-payout img').length;
+
+      const warning = document.getElementById('payout-warning');
+      if (uploadedCount < declaredCount && declaredCount > 0) {
+        warning.style.display = 'block';
+        document.getElementById('payout-uploaded-count').textContent = uploadedCount;
+        document.getElementById('payout-expected-count').textContent = declaredCount;
+        // Add visual cue to section
+        document.getElementById('section-payout').classList.add('highlight-warning');
+      } else {
+        warning.style.display = 'none';
+        document.getElementById('section-payout').classList.remove('highlight-warning');
+      }
+    }
+
+    // Merge images vertically with consistent width
+    function mergeAndCopyImages(imageElements, isCombined = false) {
+      if (!imageElements.length) return;
+
+      // Constants
+      const TARGET_WIDTH = 800;
+      const PADDING = 20;
+      const BACKGROUND_COLOR = '#ffffff';
+
+      // Load all images to get dimensions
+      const loadPromises = imageElements.map(imgEl => {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.src = imgEl.src;
+        });
+      });
+
+      Promise.all(loadPromises).then(images => {
+        // Calculate total height
+        let totalHeight = PADDING;
+        images.forEach(img => {
+          const scale = TARGET_WIDTH / img.width;
+          const scaledHeight = img.height * scale;
+          totalHeight += scaledHeight + PADDING;
+        });
+
+        // Create Canvas
+        const canvas = document.createElement('canvas');
+        canvas.width = TARGET_WIDTH;
+        canvas.height = totalHeight;
+        const ctx = canvas.getContext('2d');
+
+        // Fill Background
+        ctx.fillStyle = BACKGROUND_COLOR;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw Images
+        let currentY = PADDING / 2;
+        images.forEach(img => {
+          const scale = TARGET_WIDTH / img.width;
+          const scaledHeight = img.height * scale;
+
+          ctx.drawImage(img, 0, currentY, TARGET_WIDTH, scaledHeight);
+          currentY += scaledHeight + PADDING;
+        });
+
+        // Handle blob creation and copy
+        canvas.toBlob(blob => {
+          if (!blob) {
+            alert('Failed to process image');
+            return;
+          }
+
+          const blobUrl = URL.createObjectURL(blob);
+
+          // For combined view, always show preview so user can manually copy if auto-copy fails (common on mobile)
+          if (isCombined) {
+            const previewWrapper = document.getElementById('merged-preview-container');
+            const previewImg = document.getElementById('merged-result-img');
+            previewImg.src = blobUrl;
+            previewWrapper.style.display = 'block';
+          }
+
+          // Attempt clipboard copy
+          if (typeof ClipboardItem !== 'undefined' && navigator.clipboard && navigator.clipboard.write) {
+            try {
+              const item = new ClipboardItem({ 'image/png': blob });
+              navigator.clipboard.write([item])
+                .then(() => alert('✅ Image copied to clipboard!'))
+                .catch(err => {
+                  console.warn('Clipboard write failed', err);
+                  if (isCombined) {
+                    alert('⚠️ Auto-copy failed. Please long-press the preview image below to copy.');
+                  } else {
+                    // For non-combined, we don't have a persistent preview, so maybe open in new tab?
+                    // Or just alert failure. But let's try to show it in a temporary way or open it.
+                    // For now, simple alert.
+                    alert('⚠️ Auto-copy failed. Your browser might strictly block image copying.');
+                  }
+                });
+            } catch (e) {
+              console.warn('ClipboardItem error', e);
+              if (isCombined) {
+                alert('⚠️ Auto-copy failed. Long-press the preview below.');
+              } else {
+                alert('⚠️ Auto-copy failed.');
+              }
+            }
+          } else {
+            if (isCombined) {
+              alert('⚠️ Browser restriction: Long-press the image below to copy.');
+            } else {
+              alert('⚠️ Your browser does not support copying images automatically.');
+            }
+          }
+        }, 'image/png');
+      });
+    }
+
+    // Listen to payout count changes to update validation in real-time
+    document.getElementById('payout_count').addEventListener('input', validatePayoutCount);
 
   </script>
 </body>
