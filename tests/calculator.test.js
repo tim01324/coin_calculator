@@ -104,7 +104,15 @@ describe('Coin Calculator', () => {
 
     // Click reset
     const resetButton = document.getElementById('resetButton');
+
+    // Mock window.confirm to return true
+    const originalConfirm = window.confirm;
+    window.confirm = () => true;
+
     resetButton.click();
+
+    // Restore window.confirm
+    window.confirm = originalConfirm;
 
     // Check that values are reset
     expect(document.getElementById('toonie_roll').value).toBe('');
