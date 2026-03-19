@@ -1,0 +1,608 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #121212;
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px 0;
+  margin: 0;
+}
+
+.container {
+  background-color: #1e1e1e;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  width: 90%;
+  max-width: 400px;
+}
+
+p {
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+}
+
+label {
+  text-align: left;
+}
+
+input[type="number"] {
+  width: 70px;
+  padding: 12px 8px;
+  border: 1px solid #555;
+  border-radius: 6px;
+  text-align: right;
+  background-color: #333;
+  color: #ffffff;
+  font-size: 16px;
+  margin-left: 10px;
+  margin-right: 5px;
+  -moz-appearance: textfield;
+  appearance: textfield;
+  min-height: 44px;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+span {
+  font-weight: bold;
+  min-width: 50px;
+  text-align: right;
+}
+
+/* Specific style for result spans */
+p>span:not(#grand_total):not(#difference) {
+  margin-left: auto;
+  white-space: nowrap;
+  color: #aaa;
+}
+
+#grand_total {
+  color: #4CAF50;
+}
+
+#difference {
+  color: #4CAF50;
+}
+
+strong {
+  flex-basis: auto;
+}
+
+/* Style for the Open Cash input specifically */
+#open_cash {
+  width: 100px;
+  margin-left: auto;
+  margin-right: 0;
+  font-size: 16px;
+}
+
+/* Adjust Total and Difference rows */
+p:has(#grand_total) span,
+p:has(#difference) span {
+  margin-left: auto;
+  min-width: 70px;
+}
+
+hr {
+  border-color: #444;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+/* Button styles */
+.reset-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 15px;
+  transition: background-color 0.3s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.reset-button:hover {
+  background-color: #45a049;
+}
+
+.reset-button:active {
+  background-color: #3d8b40;
+  transform: scale(0.98);
+}
+
+/* Sync button styles */
+.sync-button {
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+  -webkit-tap-highlight-color: transparent;
+  flex: 1;
+  min-width: 180px;
+}
+
+.sync-button:hover {
+  background-color: #1976D2;
+}
+
+.sync-button:active {
+  background-color: #0D47A1;
+  transform: scale(0.98);
+}
+
+/* Tab Styles */
+.tab-container {
+  margin-bottom: 20px;
+}
+
+.tab-buttons {
+  display: flex;
+  border-bottom: 2px solid #444;
+  margin-bottom: 20px;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 12px 20px;
+  background-color: #333;
+  color: #ffffff;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab-button:hover {
+  background-color: #444;
+}
+
+.tab-button.active {
+  background-color: #4CAF50;
+  border-bottom-color: #4CAF50;
+  color: white;
+}
+
+.tab-button:active {
+  transform: scale(0.98);
+}
+
+.tab-content {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Deposit tab specific styles */
+h3 {
+  color: #4CAF50;
+  margin: 15px 0 10px 0;
+  font-size: 18px;
+}
+
+#till_requirements {
+  background-color: #2a2a2a;
+  padding: 15px;
+  border-radius: 6px;
+  margin: 10px 0;
+  border-left: 4px solid #4CAF50;
+}
+
+.till-item {
+  margin: 8px 0;
+  padding: 5px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.till-item.highlight-required {
+  background-color: rgba(76, 175, 80, 0.2);
+  padding: 8px;
+  border-radius: 4px;
+  animation: highlight 1s ease-out;
+}
+
+/* Photo Upload Styles */
+.photo-section {
+  background-color: #2a2a2a;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.photo-section h4 {
+  margin-top: 0;
+  color: #90CAF9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.file-input-wrapper {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.file-input-btn {
+  border: 2px dashed #4CAF50;
+  color: #fff;
+  background-color: transparent;
+  padding: 15px 30px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.file-input-btn:hover {
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.file-input-wrapper input[type=file] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 100%;
+  min-height: 100%;
+  font-size: 100px;
+  text-align: right;
+  filter: alpha(opacity=0);
+  opacity: 0;
+  outline: none;
+  background: white;
+  cursor: inherit;
+  display: block;
+}
+
+.preview-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+  justify-content: flex-start;
+}
+
+.preview-image-wrapper {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #555;
+}
+
+.preview-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview-remove {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(244, 67, 54, 0.8);
+  color: white;
+  border: none;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.copy-btn {
+  background-color: #FF9800;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.copy-btn:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.save-btn {
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 5px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.save-btn:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.highlight-warning {
+  border: 2px solid #F44336;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(244, 67, 54, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0);
+  }
+}
+
+.warning-text {
+  color: #F44336;
+  font-size: 13px;
+  margin-top: 5px;
+  display: none;
+  font-weight: bold;
+}
+
+/* Merged result preview modal/area (hidden by default) */
+.merged-preview {
+  margin-top: 15px;
+  border: 1px solid #444;
+  padding: 10px;
+  background: #000;
+  display: none;
+}
+
+.merged-preview img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+.modal-content {
+  margin: 5% auto;
+  display: block;
+  width: 90%;
+  max-width: 800px;
+  position: relative;
+}
+
+.modal-content img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.close {
+  position: absolute;
+  top: 15px;
+  right: 35px;
+  color: #f1f1f1;
+  font-size: 40px;
+  font-weight: bold;
+  transition: 0.3s;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.close:hover,
+.close:focus {
+  color: #bbb;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.modal-caption {
+  margin: auto;
+  display: block;
+  width: 80%;
+  max-width: 700px;
+  text-align: center;
+  color: #ccc;
+  padding: 10px 0;
+  height: 150px;
+}
+
+/* Readonly input styles */
+input[type="number"][readonly] {
+  background-color: #2a2a2a;
+  color: #aaa;
+  cursor: not-allowed;
+  border-color: #555;
+}
+
+input[type="number"][readonly]:focus {
+  outline: none;
+  border-color: #555;
+  background-color: #2a2a2a;
+}
+
+input[type="number"]:focus {
+  outline: 2px solid #4CAF50;
+  border-color: #4CAF50;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Better touch feedback */
+input[type="number"]:active {
+  background-color: #444;
+  transform: scale(0.98);
+  transition: all 0.1s ease;
+}
+
+/* Animation for total updates */
+@keyframes highlight {
+  0% {
+    background-color: rgba(76, 175, 80, 0.2);
+  }
+
+  100% {
+    background-color: transparent;
+  }
+}
+
+.highlight {
+  animation: highlight 1s ease-out;
+}
+
+/* Mobile styles */
+@media (max-width: 480px) {
+  body {
+    padding: 10px 0;
+  }
+
+  .container {
+    padding: 20px 15px;
+    width: 95%;
+    margin: 0 auto;
+  }
+
+  p {
+    margin: 12px 0;
+    flex-wrap: wrap;
+  }
+
+  label {
+    font-size: 16px;
+    min-width: 0;
+  }
+
+  input[type="number"] {
+    width: 80px;
+    margin-left: 8px;
+    margin-right: 8px;
+  }
+
+  #open_cash {
+    width: 120px;
+  }
+
+  .reset-button {
+    width: 100%;
+    padding: 15px;
+    font-size: 18px;
+    margin-top: 20px;
+  }
+
+  .sync-button {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    min-width: auto;
+  }
+
+  /* Stack buttons vertically on mobile */
+  div[style*="display: flex"] {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  span {
+    font-size: 16px;
+  }
+
+  hr {
+    margin: 15px 0;
+  }
+}
+
+/* Tablet styles */
+@media (min-width: 481px) and (max-width: 768px) {
+  .container {
+    width: 85%;
+    padding: 25px 20px;
+  }
+
+  input[type="number"] {
+    width: 75px;
+  }
+
+  #open_cash {
+    width: 110px;
+  }
+}
+
+/* Print styles */
+@media print {
+  body {
+    background-color: white;
+    color: black;
+  }
+
+  .container {
+    background-color: white;
+    box-shadow: none;
+  }
+
+  .reset-button {
+    display: none;
+  }
+}

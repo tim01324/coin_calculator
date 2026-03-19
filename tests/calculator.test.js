@@ -3,6 +3,27 @@ import { JSDOM } from 'jsdom';
 import fs from 'fs';
 import path from 'path';
 
+// Helper: build JSDOM with inline scripts (avoiding template literal issues)
+function createDOM() {
+  const html = fs.readFileSync(path.resolve(__dirname, '../index.html'), 'utf-8');
+  const calculatorJs = fs.readFileSync(path.resolve(__dirname, '../js/calculator.js'), 'utf-8');
+  const depositJs = fs.readFileSync(path.resolve(__dirname, '../js/deposit.js'), 'utf-8');
+  const photosJs = fs.readFileSync(path.resolve(__dirname, '../js/photos.js'), 'utf-8');
+
+  // Replace external script tags with inline scripts using string concat
+  let result = html;
+  result = result.replace('<script src="js/calculator.js"><\/script>', () => '<script>' + calculatorJs + '<\/script>');
+  result = result.replace('<script src="js/deposit.js"><\/script>', () => '<script>' + depositJs + '<\/script>');
+  result = result.replace('<script src="js/photos.js"><\/script>', () => '<script>' + photosJs + '<\/script>');
+
+  const dom = new JSDOM(result, {
+    runScripts: 'dangerously',
+    resources: 'usable',
+    url: 'file://' + path.resolve(__dirname, '../index.html')
+  });
+
+  return dom;
+}
 describe('Coin Calculator', () => {
   let dom;
   let window;
@@ -10,7 +31,21 @@ describe('Coin Calculator', () => {
 
   beforeEach(() => {
     const html = fs.readFileSync(path.resolve(__dirname, '../index.html'), 'utf-8');
-    dom = new JSDOM(html, { runScripts: 'dangerously', resources: 'usable' });
+    // Read external JS files
+    const calculatorJs = fs.readFileSync(path.resolve(__dirname, '../js/calculator.js'), 'utf-8');
+    const depositJs = fs.readFileSync(path.resolve(__dirname, '../js/deposit.js'), 'utf-8');
+    const photosJs = fs.readFileSync(path.resolve(__dirname, '../js/photos.js'), 'utf-8');
+
+    // Remove external script tags and inject inline scripts instead
+    // (JSDOM file:// resource loading is unreliable)
+    // Note: Use string concatenation, NOT template literals, because the JS
+    // files contain ${} patterns that would be interpreted as template expressions
+    const htmlWithInlineScripts = html
+      .replace('<script src="js/calculator.js"></script>', () => '<script>' + calculatorJs + '</script>')
+      .replace('<script src="js/deposit.js"></script>', () => '<script>' + depositJs + '</script>')
+      .replace('<script src="js/photos.js"></script>', () => '<script>' + photosJs + '</script>');
+
+    dom = new JSDOM(htmlWithInlineScripts, { runScripts: 'dangerously', resources: 'usable' });
     window = dom.window;
     document = window.document;
 
@@ -132,7 +167,16 @@ describe('Deposit Helper', () => {
 
   beforeEach(() => {
     const html = fs.readFileSync(path.resolve(__dirname, '../index.html'), 'utf-8');
-    dom = new JSDOM(html, { runScripts: 'dangerously', resources: 'usable' });
+    const calculatorJs = fs.readFileSync(path.resolve(__dirname, '../js/calculator.js'), 'utf-8');
+    const depositJs = fs.readFileSync(path.resolve(__dirname, '../js/deposit.js'), 'utf-8');
+    const photosJs = fs.readFileSync(path.resolve(__dirname, '../js/photos.js'), 'utf-8');
+
+    const htmlWithInlineScripts = html
+      .replace('<script src="js/calculator.js"></script>', () => '<script>' + calculatorJs + '</script>')
+      .replace('<script src="js/deposit.js"></script>', () => '<script>' + depositJs + '</script>')
+      .replace('<script src="js/photos.js"></script>', () => '<script>' + photosJs + '</script>');
+
+    dom = new JSDOM(htmlWithInlineScripts, { runScripts: 'dangerously', resources: 'usable' });
     window = dom.window;
     document = window.document;
 
