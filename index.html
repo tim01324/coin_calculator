@@ -1536,7 +1536,7 @@
         });
 
         // Handle blob creation and copy
-        canvas.toBlob(blob => {
+        canvas.toBlob(async (blob) => {
           if (!blob) {
             alert('Failed to process image');
             return;
@@ -1544,15 +1544,15 @@
 
           const blobUrl = URL.createObjectURL(blob);
 
-          // Always show modal for better UX on mobile
+          // Update Modal Preview
           const modal = document.getElementById('imageModal');
           const modalImg = document.getElementById('modalImg');
-          const captionText = document.getElementById('caption');
+          const captionText = document.getElementById('caption'); // Get caption element locally
 
           if (modal && modalImg) {
             modal.style.display = "block";
             modalImg.src = blobUrl;
-            captionText.innerHTML = `${caption}<br><span style="font-size:0.8em; color:#888;">Tap/Long press image to copy/save if auto-copy fails.</span>`;
+            if (captionText) captionText.innerHTML = `${caption}<br><span style="font-size:0.8em; color:#888;">Tap/Long press image to copy/save if auto-copy fails.</span>`;
           }
 
           // For combined view, also show the inline preview
@@ -1565,22 +1565,21 @@
             }
           }
 
-          // Attempt clipboard copy
-          if (typeof ClipboardItem !== 'undefined' && navigator.clipboard && navigator.clipboard.write) {
+          // --- Safari Optimized Clipboard Handling ---
+          if (navigator.clipboard && typeof ClipboardItem !== 'undefined') {
             try {
-              const item = new ClipboardItem({ 'image/png': blob });
-              navigator.clipboard.write([item])
-                .then(() => {
-                  // Success feedback
-                  if (captionText) captionText.innerHTML = `✅ <strong>Copied to clipboard!</strong><br>${caption}`;
+              // Create ClipboardItem with a Promise for Safari compatibility
+              const item = new ClipboardItem({
+                'image/png': new Promise((resolve) => {
+                  resolve(blob);
                 })
-                .catch(err => {
-                  console.warn('Clipboard write failed', err);
-                  if (captionText) captionText.innerHTML = `⚠️ <strong>Auto-copy failed.</strong><br>Please long-press the image above to Copy or Save.<br><span style="font-size:0.8em; color:#666;">Browser error: ${err.name}</span>`;
-                });
-            } catch (e) {
-              console.warn('ClipboardItem error', e);
-              if (captionText) captionText.innerHTML = `⚠️ <strong>Auto-copy failed.</strong><br>Please long-press the image above to Copy or Save.`;
+              });
+
+              await navigator.clipboard.write([item]);
+              if (captionText) captionText.innerHTML = `✅ <strong>Copied to clipboard!</strong><br>${caption}`;
+            } catch (err) {
+              console.error(err);
+              if (captionText) captionText.innerHTML = `⚠️ <strong>Auto-copy failed.</strong><br>Please long-press the image above to Copy or Save.<br><span style="font-size:0.8em; color:#666;">Error: ${err.message}</span>`;
             }
           } else {
             if (captionText) captionText.innerHTML = `⚠️ <strong>Browser not supported.</strong><br>Please long-press the image above to Copy or Save.`;
