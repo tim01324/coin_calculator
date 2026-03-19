@@ -444,6 +444,64 @@
       height: auto;
     }
 
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgb(0, 0, 0);
+      background-color: rgba(0, 0, 0, 0.9);
+    }
+
+    .modal-content {
+      margin: 5% auto;
+      display: block;
+      width: 90%;
+      max-width: 800px;
+      position: relative;
+    }
+
+    .modal-content img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .close {
+      position: absolute;
+      top: 15px;
+      right: 35px;
+      color: #f1f1f1;
+      font-size: 40px;
+      font-weight: bold;
+      transition: 0.3s;
+      cursor: pointer;
+      z-index: 1001;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: #bbb;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .modal-caption {
+      margin: auto;
+      display: block;
+      width: 80%;
+      max-width: 700px;
+      text-align: center;
+      color: #ccc;
+      padding: 10px 0;
+      height: 150px;
+    }
+
     /* Readonly input styles */
     input[type="number"][readonly] {
       background-color: #2a2a2a;
@@ -805,6 +863,15 @@
         <div class="preview-container" id="preview-env"></div>
         <button class="copy-btn" id="copy-env" disabled>📋 Copy Environment Photos</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Image Result Modal -->
+  <div id="imageModal" class="modal">
+    <span class="close" id="modalClose">&times;</span>
+    <div class="modal-content">
+      <img id="modalImg" />
+      <div id="caption" class="modal-caption"></div>
     </div>
   </div>
 
@@ -1275,6 +1342,20 @@
       // Configuration for section inputs and previews
       const sections = ['store', 'bank', 'payout', 'env'];
 
+      // Modal Close Logic
+      const modal = document.getElementById('imageModal');
+      const span = document.getElementById('modalClose');
+      if (span && modal) {
+        span.onclick = function () {
+          modal.style.display = "none";
+        }
+        modal.onclick = function (event) {
+          if (event.target === modal) {
+            modal.style.display = "none";
+          }
+        }
+      }
+
       // Store image blobs for merging later (specifically for bank and payout)
       const imageStore = {
         bank: [],
@@ -1299,7 +1380,7 @@
             // This covers single or multiple images
             const images = Array.from(previewContainer.querySelectorAll('img'));
             if (images.length > 0) {
-              mergeAndCopyImages(images);
+              mergeAndCopyImages(images, false, `Result for ${section}`);
             }
           });
         }
@@ -1315,7 +1396,7 @@
           const allImages = [...bankImages, ...payoutImages];
 
           if (allImages.length > 0) {
-            mergeAndCopyImages(allImages, true); // true = show in merged preview for Combined
+            mergeAndCopyImages(allImages, true, 'Combined Result (Bank + Payout)');
           }
         });
       }
@@ -1408,7 +1489,7 @@
     }
 
     // Merge images vertically with consistent width
-    function mergeAndCopyImages(imageElements, isCombined = false) {
+    function mergeAndCopyImages(imageElements, isCombined = false, caption = 'Result') {
       if (!imageElements.length) return;
 
       // Constants
@@ -1463,12 +1544,25 @@
 
           const blobUrl = URL.createObjectURL(blob);
 
-          // For combined view, always show preview so user can manually copy if auto-copy fails (common on mobile)
+          // Always show modal for better UX on mobile
+          const modal = document.getElementById('imageModal');
+          const modalImg = document.getElementById('modalImg');
+          const captionText = document.getElementById('caption');
+
+          if (modal && modalImg) {
+            modal.style.display = "block";
+            modalImg.src = blobUrl;
+            captionText.innerHTML = `${caption}<br><span style="font-size:0.8em; color:#888;">Tap/Long press image to copy/save if auto-copy fails.</span>`;
+          }
+
+          // For combined view, also show the inline preview
           if (isCombined) {
             const previewWrapper = document.getElementById('merged-preview-container');
             const previewImg = document.getElementById('merged-result-img');
-            previewImg.src = blobUrl;
-            previewWrapper.style.display = 'block';
+            if (previewImg && previewWrapper) {
+              previewImg.src = blobUrl;
+              previewWrapper.style.display = 'block';
+            }
           }
 
           // Attempt clipboard copy
@@ -1476,32 +1570,20 @@
             try {
               const item = new ClipboardItem({ 'image/png': blob });
               navigator.clipboard.write([item])
-                .then(() => alert('✅ Image copied to clipboard!'))
+                .then(() => {
+                  // Success feedback
+                  if (captionText) captionText.innerHTML = `✅ <strong>Copied to clipboard!</strong><br>${caption}`;
+                })
                 .catch(err => {
                   console.warn('Clipboard write failed', err);
-                  if (isCombined) {
-                    alert('⚠️ Auto-copy failed. Please long-press the preview image below to copy.');
-                  } else {
-                    // For non-combined, we don't have a persistent preview, so maybe open in new tab?
-                    // Or just alert failure. But let's try to show it in a temporary way or open it.
-                    // For now, simple alert.
-                    alert('⚠️ Auto-copy failed. Your browser might strictly block image copying.');
-                  }
+                  if (captionText) captionText.innerHTML = `⚠️ <strong>Auto-copy failed.</strong><br>Please long-press the image above to Copy or Save.<br><span style="font-size:0.8em; color:#666;">Browser error: ${err.name}</span>`;
                 });
             } catch (e) {
               console.warn('ClipboardItem error', e);
-              if (isCombined) {
-                alert('⚠️ Auto-copy failed. Long-press the preview below.');
-              } else {
-                alert('⚠️ Auto-copy failed.');
-              }
+              if (captionText) captionText.innerHTML = `⚠️ <strong>Auto-copy failed.</strong><br>Please long-press the image above to Copy or Save.`;
             }
           } else {
-            if (isCombined) {
-              alert('⚠️ Browser restriction: Long-press the image below to copy.');
-            } else {
-              alert('⚠️ Your browser does not support copying images automatically.');
-            }
+            if (captionText) captionText.innerHTML = `⚠️ <strong>Browser not supported.</strong><br>Please long-press the image above to Copy or Save.`;
           }
         }, 'image/png');
       });
