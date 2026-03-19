@@ -403,6 +403,29 @@
       opacity: 0.7;
     }
 
+    .save-btn {
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 5px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .save-btn:disabled {
+      background-color: #555;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
     .highlight-warning {
       border: 2px solid #F44336;
       animation: pulse 2s infinite;
@@ -815,6 +838,7 @@
         </div>
         <div class="preview-container" id="preview-store"></div>
         <button class="copy-btn" id="copy-store" disabled>📋 Copy Image</button>
+        <button class="save-btn" id="save-store" disabled>💾 Save Image</button>
       </div>
 
       <!-- Combined Bank & Payout Actions -->
@@ -862,6 +886,7 @@
         </div>
         <div class="preview-container" id="preview-env"></div>
         <button class="copy-btn" id="copy-env" disabled>📋 Copy Environment Photos</button>
+        <button class="save-btn" id="save-env" disabled>💾 Save Image</button>
       </div>
     </div>
   </div>
@@ -872,6 +897,9 @@
     <div class="modal-content">
       <img id="modalImg" />
       <div id="caption" class="modal-caption"></div>
+      <div style="text-align: center; margin-top: 10px;">
+        <button class="save-btn" id="modal-save-btn" style="width: auto; display: inline-flex; padding: 12px 24px; font-size: 16px;">💾 Save Image to Device</button>
+      </div>
     </div>
   </div>
 
@@ -1356,6 +1384,17 @@
         }
       }
 
+      // Modal Save Button
+      const modalSaveBtn = document.getElementById('modal-save-btn');
+      if (modalSaveBtn) {
+        modalSaveBtn.addEventListener('click', () => {
+          const modalImg = document.getElementById('modalImg');
+          if (modalImg && modalImg.src) {
+            downloadImage(modalImg.src, 'merged-image.png');
+          }
+        });
+      }
+
       // Store image blobs for merging later (specifically for bank and payout)
       const imageStore = {
         bank: [],
@@ -1377,10 +1416,20 @@
         if (copyBtn) {
           copyBtn.addEventListener('click', () => {
             // For store and env, we merge all images in that section and copy
-            // This covers single or multiple images
             const images = Array.from(previewContainer.querySelectorAll('img'));
             if (images.length > 0) {
               mergeAndCopyImages(images, false, `Result for ${section}`);
+            }
+          });
+        }
+
+        // Add save listener for single save buttons
+        const saveBtn = document.getElementById(`save-${section}`);
+        if (saveBtn) {
+          saveBtn.addEventListener('click', () => {
+            const images = Array.from(previewContainer.querySelectorAll('img'));
+            if (images.length > 0) {
+              mergeAndSaveImages(images, `${section}-photos.png`);
             }
           });
         }
@@ -1454,12 +1503,15 @@
     }
 
     function updateButtonState(section) {
-      // Update Enable/Disable state of Copy buttons
+      // Update Enable/Disable state of Copy and Save buttons
       const container = document.getElementById(`preview-${section}`);
       const count = container.querySelectorAll('img').length;
 
       const btn = document.getElementById(`copy-${section}`);
       if (btn) btn.disabled = count === 0;
+
+      const saveBtn = document.getElementById(`save-${section}`);
+      if (saveBtn) saveBtn.disabled = count === 0;
 
       // Update Combined Button
       const bankCount = document.querySelectorAll('#preview-bank img').length;
@@ -1488,102 +1540,194 @@
       }
     }
 
-    // Merge images vertically with consistent width
-    function mergeAndCopyImages(imageElements, isCombined = false, caption = 'Result') {
-      if (!imageElements.length) return;
-
+    // Helper: render images onto a canvas and return it as a blob (Promise)
+    function renderMergedCanvas(imageElements) {
       const TARGET_WIDTH = 800;
       const PADDING = 20;
       const BACKGROUND_COLOR = '#ffffff';
 
-      const loadPromises = imageElements.map(imgEl => {
-        return new Promise((resolve) => {
-          const img = new Image();
-          img.crossOrigin = "anonymous"; // Avoid canvas taint
-          img.onload = () => resolve(img);
-          img.src = imgEl.src;
+      return new Promise((resolve, reject) => {
+        const loadPromises = imageElements.map(imgEl => {
+          return new Promise((res) => {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => res(img);
+            img.onerror = () => res(null);
+            img.src = imgEl.src;
+          });
         });
+
+        Promise.all(loadPromises).then(images => {
+          const validImages = images.filter(img => img !== null);
+          if (validImages.length === 0) {
+            reject(new Error('No images loaded'));
+            return;
+          }
+
+          // Calculate total height
+          let totalHeight = PADDING;
+          validImages.forEach(img => {
+            const scale = TARGET_WIDTH / img.width;
+            const scaledHeight = img.height * scale;
+            totalHeight += scaledHeight + PADDING;
+          });
+
+          // Create Canvas
+          const canvas = document.createElement('canvas');
+          canvas.width = TARGET_WIDTH;
+          canvas.height = totalHeight;
+          const ctx = canvas.getContext('2d');
+
+          // Fill Background
+          ctx.fillStyle = BACKGROUND_COLOR;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          // Draw Images
+          let currentY = PADDING / 2;
+          validImages.forEach(img => {
+            const scale = TARGET_WIDTH / img.width;
+            const scaledHeight = img.height * scale;
+            ctx.drawImage(img, 0, currentY, TARGET_WIDTH, scaledHeight);
+            currentY += scaledHeight + PADDING;
+          });
+
+          // Convert canvas to blob
+          canvas.toBlob(blob => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error('Canvas toBlob failed'));
+            }
+          }, 'image/png');
+        }).catch(reject);
       });
+    }
 
-      Promise.all(loadPromises).then(images => {
-        // Calculate total height
-        let totalHeight = PADDING;
-        images.forEach(img => {
-          const scale = TARGET_WIDTH / img.width;
-          const scaledHeight = img.height * scale;
-          totalHeight += scaledHeight + PADDING;
-        });
+    // Helper: trigger a file download from a blob URL or data URL
+    function downloadImage(src, filename) {
+      const a = document.createElement('a');
+      a.href = src;
+      a.download = filename || 'image.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
 
-        // Create Canvas
-        const canvas = document.createElement('canvas');
-        canvas.width = TARGET_WIDTH;
-        canvas.height = totalHeight;
-        const ctx = canvas.getContext('2d');
+    // Merge images and save as download (no clipboard)
+    function mergeAndSaveImages(imageElements, filename) {
+      renderMergedCanvas(imageElements).then(blob => {
+        const blobUrl = URL.createObjectURL(blob);
+        downloadImage(blobUrl, filename);
+        // Clean up after a delay
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+      }).catch(err => {
+        console.error('Save failed:', err);
+        alert('Error saving image. Please try again.');
+      });
+    }
 
-        // Fill Background
-        ctx.fillStyle = BACKGROUND_COLOR;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Merge images vertically, copy to clipboard (Safari-compatible), and show preview
+    function mergeAndCopyImages(imageElements, isCombined = false, caption = 'Result') {
+      if (!imageElements.length) return;
 
-        // Draw Images
-        let currentY = PADDING / 2;
-        images.forEach(img => {
-          const scale = TARGET_WIDTH / img.width;
-          const scaledHeight = img.height * scale;
+      const modal = document.getElementById('imageModal');
+      const modalImg = document.getElementById('modalImg');
+      const captionText = document.getElementById('caption');
 
-          ctx.drawImage(img, 0, currentY, TARGET_WIDTH, scaledHeight);
-          currentY += scaledHeight + PADDING;
-        });
+      // --- Safari-compatible Clipboard Write ---
+      // Safari requires ClipboardItem to be constructed synchronously within
+      // the user gesture. We pass a Promise<Blob> to ClipboardItem so the
+      // actual async work (image loading + canvas rendering) happens inside
+      // that promise, while ClipboardItem is created in the click call stack.
+      
+      const supportsClipboard = navigator.clipboard && typeof ClipboardItem !== 'undefined';
 
-        // --- New Logic: Synchronous Blob Conversion via DataURL ---
+      if (supportsClipboard) {
+        // Create the blob promise — this does all the heavy lifting async
+        const blobPromise = renderMergedCanvas(imageElements);
+
         try {
-          const dataUrl = canvas.toDataURL('image/png');
-          const byteString = atob(dataUrl.split(',')[1]);
-          const ab = new ArrayBuffer(byteString.length);
-          const ia = new Uint8Array(ab);
-          for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
-          const blob = new Blob([ab], { type: 'image/png' });
+          // ClipboardItem MUST be created synchronously in the click handler
+          const item = new ClipboardItem({
+            'image/png': blobPromise
+          });
 
-          const blobUrl = URL.createObjectURL(blob);
-
-          // Update Modal Preview
-          const modal = document.getElementById('imageModal');
-          const modalImg = document.getElementById('modalImg');
-          const captionText = document.getElementById('caption');
-
+          // Show modal immediately with "processing" state
           if (modal && modalImg) {
             modal.style.display = "block";
-            modalImg.src = blobUrl;
-            if (captionText) captionText.innerHTML = `${caption}<br><span style="font-size:0.8em; color:#888;">Generating...</span>`;
+            if (captionText) captionText.innerHTML = `${caption}<br><span style="font-size:0.8em; color:#888;">Processing...</span>`;
           }
 
-          // For combined view, also show the inline preview
-          if (isCombined) {
-            const previewWrapper = document.getElementById('merged-preview-container');
-            const previewImg = document.getElementById('merged-result-img');
-            if (previewImg && previewWrapper) {
-              previewImg.src = blobUrl;
-              previewWrapper.style.display = 'block';
-            }
-          }
-
-          // --- Strict Clipboard Write (Image Only) ---
-          if (navigator.clipboard && typeof ClipboardItem !== 'undefined') {
-            // Create item strictly with image/png only, no text fallback
-            const item = new ClipboardItem({ 'image/png': blob });
-
-            navigator.clipboard.write([item]).then(() => {
+          navigator.clipboard.write([item]).then(() => {
+            // Clipboard write succeeded — update preview with the resolved blob
+            blobPromise.then(blob => {
+              const blobUrl = URL.createObjectURL(blob);
+              if (modalImg) modalImg.src = blobUrl;
               if (captionText) captionText.innerHTML = `✅ <strong>Copied!</strong><br><span style="font-size:0.8em; color:#888;">Ready to paste into Lark.</span>`;
-            }).catch(err => {
-              console.warn('Clipboard write failed', err);
-              if (captionText) captionText.innerHTML = `⚠️ <strong>Auto-copy failed.</strong><br>Please long-press the image to copy manually.`;
+
+              if (isCombined) {
+                const previewWrapper = document.getElementById('merged-preview-container');
+                const previewImg = document.getElementById('merged-result-img');
+                if (previewImg && previewWrapper) {
+                  previewImg.src = blobUrl;
+                  previewWrapper.style.display = 'block';
+                }
+              }
             });
-          } else {
-            if (captionText) captionText.innerHTML = `⚠️ <strong>Browser not supported.</strong><br>Please long-press the image to copy manually.`;
-          }
+          }).catch(err => {
+            console.warn('Clipboard write failed, falling back:', err);
+            // Fallback: show image in modal with save option
+            blobPromise.then(blob => {
+              const blobUrl = URL.createObjectURL(blob);
+              if (modalImg) modalImg.src = blobUrl;
+              if (captionText) captionText.innerHTML = `⚠️ <strong>Auto-copy failed.</strong><br>Use the "Save Image" button below, or long-press the image to copy.`;
+
+              if (isCombined) {
+                const previewWrapper = document.getElementById('merged-preview-container');
+                const previewImg = document.getElementById('merged-result-img');
+                if (previewImg && previewWrapper) {
+                  previewImg.src = blobUrl;
+                  previewWrapper.style.display = 'block';
+                }
+              }
+            });
+          });
         } catch (e) {
-          console.error("Processing error:", e);
-          alert("Error processing image. Browser might be restricting canvas data.");
+          console.error('ClipboardItem creation failed:', e);
+          // Complete fallback — render and show save button
+          fallbackShowAndSave(imageElements, isCombined, caption);
         }
+      } else {
+        // No clipboard API — fallback to modal + save button
+        fallbackShowAndSave(imageElements, isCombined, caption);
+      }
+    }
+
+    // Fallback: render merged image, show in modal, offer download
+    function fallbackShowAndSave(imageElements, isCombined, caption) {
+      const modal = document.getElementById('imageModal');
+      const modalImg = document.getElementById('modalImg');
+      const captionText = document.getElementById('caption');
+
+      if (modal) modal.style.display = "block";
+      if (captionText) captionText.innerHTML = `${caption}<br><span style="font-size:0.8em; color:#888;">Generating...</span>`;
+
+      renderMergedCanvas(imageElements).then(blob => {
+        const blobUrl = URL.createObjectURL(blob);
+        if (modalImg) modalImg.src = blobUrl;
+        if (captionText) captionText.innerHTML = `⚠️ <strong>Browser doesn't support auto-copy.</strong><br>Use the "Save Image" button below to download.`;
+
+        if (isCombined) {
+          const previewWrapper = document.getElementById('merged-preview-container');
+          const previewImg = document.getElementById('merged-result-img');
+          if (previewImg && previewWrapper) {
+            previewImg.src = blobUrl;
+            previewWrapper.style.display = 'block';
+          }
+        }
+      }).catch(err => {
+        console.error("Processing error:", err);
+        if (captionText) captionText.innerHTML = `❌ <strong>Error processing image.</strong><br>Please try again.`;
       });
     }
 
