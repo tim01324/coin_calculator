@@ -41,11 +41,16 @@ describe('Coin Calculator', () => {
     // Note: Use string concatenation, NOT template literals, because the JS
     // files contain ${} patterns that would be interpreted as template expressions
     const htmlWithInlineScripts = html
+      .replace('<link rel="stylesheet" href="styles.css">', '')
       .replace('<script src="js/calculator.js"></script>', () => '<script>' + calculatorJs + '</script>')
       .replace('<script src="js/deposit.js"></script>', () => '<script>' + depositJs + '</script>')
       .replace('<script src="js/photos.js"></script>', () => '<script>' + photosJs + '</script>');
 
-    dom = new JSDOM(htmlWithInlineScripts, { runScripts: 'dangerously', resources: 'usable' });
+    dom = new JSDOM(htmlWithInlineScripts, {
+      runScripts: 'dangerously',
+      resources: 'usable',
+      url: 'http://localhost/'
+    });
     window = dom.window;
     document = window.document;
 
@@ -158,6 +163,67 @@ describe('Coin Calculator', () => {
     expect(document.getElementById('grand_total').textContent).toBe('0.00');
     expect(document.getElementById('difference').textContent).toBe('-300.00');
   });
+
+  it('should reset calculator, deposit, photos, warnings, and storage when reset button is clicked', () => {
+    document.getElementById('toonie_roll').value = '1';
+    document.getElementById('toonie_roll').dispatchEvent(new window.Event('input', { bubbles: true }));
+
+    document.getElementById('received_cash').value = '125.00';
+    document.getElementById('received_cash').dispatchEvent(new window.Event('input', { bubbles: true }));
+    document.getElementById('payout_cash').value = '25.00';
+    document.getElementById('payout_cash').dispatchEvent(new window.Event('input', { bubbles: true }));
+    document.getElementById('payout_count').value = '2';
+    document.getElementById('payout_count').dispatchEvent(new window.Event('input', { bubbles: true }));
+
+    document.getElementById('preview-store').innerHTML = '<img src="data:image/png;base64,abc">';
+    document.getElementById('preview-payout').innerHTML = '<img src="data:image/png;base64,abc">';
+    document.getElementById('copy-store').disabled = false;
+    document.getElementById('save-store').disabled = false;
+    document.getElementById('copy-combined-bank-payout').disabled = false;
+    document.getElementById('merged-preview-container').style.display = 'block';
+    document.getElementById('merged-result-img').src = 'data:image/png;base64,abc';
+    document.getElementById('imageModal').style.display = 'block';
+    document.getElementById('modalImg').src = 'data:image/png;base64,abc';
+    document.getElementById('caption').innerHTML = 'Copied';
+
+    const warning = document.getElementById('payout-warning');
+    const payoutSection = document.getElementById('section-payout');
+    warning.style.display = 'block';
+    document.getElementById('payout-uploaded-count').textContent = '1';
+    document.getElementById('payout-expected-count').textContent = '2';
+    payoutSection.classList.add('highlight-warning');
+
+    window.localStorage.setItem('coinCalculatorData', JSON.stringify({ received_cash: '125.00' }));
+
+    const originalConfirm = window.confirm;
+    window.confirm = () => true;
+    document.getElementById('resetButton').click();
+    window.confirm = originalConfirm;
+
+    expect(document.getElementById('toonie_roll').value).toBe('');
+    expect(document.getElementById('open_cash').value).toBe('300');
+    expect(document.getElementById('grand_total').textContent).toBe('0.00');
+    expect(document.getElementById('difference').textContent).toBe('-300.00');
+
+    expect(document.getElementById('received_cash').value).toBe('0');
+    expect(document.getElementById('payout_cash').value).toBe('0');
+    expect(document.getElementById('payout_count').value).toBe('0');
+    expect(document.getElementById('dep_hundre_dollar_bill_count').value).toBe('');
+    expect(document.getElementById('net_deposit').textContent).toBe('0.00');
+    expect(document.getElementById('till_requirements').textContent).toContain('Enter the received cash amount');
+
+    expect(document.getElementById('preview-store').querySelectorAll('img').length).toBe(0);
+    expect(document.getElementById('preview-payout').querySelectorAll('img').length).toBe(0);
+    expect(document.getElementById('copy-store').disabled).toBe(true);
+    expect(document.getElementById('save-store').disabled).toBe(true);
+    expect(document.getElementById('copy-combined-bank-payout').disabled).toBe(true);
+    expect(document.getElementById('merged-preview-container').style.display).toBe('none');
+    expect(document.getElementById('imageModal').style.display).toBe('none');
+    expect(document.getElementById('caption').innerHTML).toBe('');
+    expect(warning.style.display).toBe('none');
+    expect(payoutSection.classList.contains('highlight-warning')).toBe(false);
+    expect(window.localStorage.getItem('coinCalculatorData')).toBe(null);
+  });
 });
 
 describe('Deposit Helper', () => {
@@ -172,11 +238,16 @@ describe('Deposit Helper', () => {
     const photosJs = fs.readFileSync(path.resolve(__dirname, '../js/photos.js'), 'utf-8');
 
     const htmlWithInlineScripts = html
+      .replace('<link rel="stylesheet" href="styles.css">', '')
       .replace('<script src="js/calculator.js"></script>', () => '<script>' + calculatorJs + '</script>')
       .replace('<script src="js/deposit.js"></script>', () => '<script>' + depositJs + '</script>')
       .replace('<script src="js/photos.js"></script>', () => '<script>' + photosJs + '</script>');
 
-    dom = new JSDOM(htmlWithInlineScripts, { runScripts: 'dangerously', resources: 'usable' });
+    dom = new JSDOM(htmlWithInlineScripts, {
+      runScripts: 'dangerously',
+      resources: 'usable',
+      url: 'http://localhost/'
+    });
     window = dom.window;
     document = window.document;
 

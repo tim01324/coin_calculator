@@ -2,9 +2,9 @@
 // Photo Handling, Merging, Clipboard & Download
 // ============================================
 
-function initializePhotoHandlers() {
-  const sections = ['store', 'bank', 'payout', 'env'];
+const photoSections = ['store', 'bank', 'payout', 'env'];
 
+function initializePhotoHandlers() {
   // Modal Close Logic
   const modal = document.getElementById('imageModal');
   const span = document.getElementById('modalClose');
@@ -36,7 +36,7 @@ function initializePhotoHandlers() {
     payout: []
   };
 
-  sections.forEach(section => {
+  photoSections.forEach(section => {
     const input = document.getElementById(`input-${section}`);
     const previewContainer = document.getElementById(`preview-${section}`);
 
@@ -82,6 +82,52 @@ function initializePhotoHandlers() {
       }
     });
   }
+}
+
+function resetPhotosAll() {
+  photoSections.forEach(section => {
+    const input = document.getElementById(`input-${section}`);
+    if (input) input.value = '';
+
+    const previewContainer = document.getElementById(`preview-${section}`);
+    if (previewContainer) previewContainer.innerHTML = '';
+
+    const copyBtn = document.getElementById(`copy-${section}`);
+    if (copyBtn) copyBtn.disabled = true;
+
+    const saveBtn = document.getElementById(`save-${section}`);
+    if (saveBtn) saveBtn.disabled = true;
+  });
+
+  const combinedCopyBtn = document.getElementById('copy-combined-bank-payout');
+  if (combinedCopyBtn) combinedCopyBtn.disabled = true;
+
+  const mergedPreview = document.getElementById('merged-preview-container');
+  if (mergedPreview) mergedPreview.style.display = 'none';
+
+  const mergedImg = document.getElementById('merged-result-img');
+  if (mergedImg) mergedImg.removeAttribute('src');
+
+  const modal = document.getElementById('imageModal');
+  if (modal) modal.style.display = 'none';
+
+  const modalImg = document.getElementById('modalImg');
+  if (modalImg) modalImg.removeAttribute('src');
+
+  const caption = document.getElementById('caption');
+  if (caption) caption.innerHTML = '';
+
+  const warning = document.getElementById('payout-warning');
+  if (warning) warning.style.display = 'none';
+
+  const payoutSection = document.getElementById('section-payout');
+  if (payoutSection) payoutSection.classList.remove('highlight-warning');
+
+  const uploadedCount = document.getElementById('payout-uploaded-count');
+  if (uploadedCount) uploadedCount.textContent = '0';
+
+  const expectedCount = document.getElementById('payout-expected-count');
+  if (expectedCount) expectedCount.textContent = '0';
 }
 
 function handleFileSelect(event, container, section, imageStore) {

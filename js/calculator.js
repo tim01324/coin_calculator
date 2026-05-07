@@ -173,6 +173,14 @@ function resetAll() {
       calculateGrandTotal();
     }
 
+    if (typeof resetDepositAll === 'function') {
+      resetDepositAll();
+    }
+
+    if (typeof resetPhotosAll === 'function') {
+      resetPhotosAll();
+    }
+
     // Clear localStorage on reset
     clearLocalStorage();
   }

@@ -180,10 +180,32 @@ function resetDepositAll() {
   ['received_cash', 'payout_cash', 'payout_count'].forEach(id => {
     const input = document.getElementById(id);
     if (input) {
-      input.value = id === 'payout_count' ? '0' : '0';
+      input.value = '0';
       if (id !== 'payout_count') calculateDepositGrandTotal();
     }
   });
+
+  calculateDepositGrandTotal();
+
+  const payoutWarning = document.getElementById('payout-warning');
+  if (payoutWarning) {
+    payoutWarning.style.display = 'none';
+  }
+
+  const payoutSection = document.getElementById('section-payout');
+  if (payoutSection) {
+    payoutSection.classList.remove('highlight-warning');
+  }
+
+  const uploadedCount = document.getElementById('payout-uploaded-count');
+  if (uploadedCount) {
+    uploadedCount.textContent = '0';
+  }
+
+  const expectedCount = document.getElementById('payout-expected-count');
+  if (expectedCount) {
+    expectedCount.textContent = '0';
+  }
 }
 
 // Auto-sync data from Count Calculator to Deposit Helper
